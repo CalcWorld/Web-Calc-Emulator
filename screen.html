@@ -86,4 +86,8 @@
     parentWindow.dispatchEvent(new KeyboardEvent(event.type, event))
   }
 
+  onwheel = event => {
+    parentWindow.container.dispatchEvent(new WheelEvent(event.type, event))
+  }
+
 </script>

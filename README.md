@@ -51,7 +51,7 @@ const emulatorList = {
   // ...... other models
 };
 ```
-Named each key with the model ID, the value for each key is an object containing the name and the background color of the model.
+- Named each key with the model ID, the value for each key is an object containing the name and the background color of the model.
 
 5. Find the line begin with `const emulatorGroup = [];` <br>Edit the content in the following format:
 

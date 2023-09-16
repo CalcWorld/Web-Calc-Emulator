@@ -18,7 +18,7 @@ Please note that this repository contains no available models. You need to find 
 
 ## Import Single Model
 
-Open the **Add Custom Model** panel to import a single model.
+Run the emulator, and open the **Add Custom Model** panel to import a single model.
 
 - **Model ID**: Must starts with `CY` or `EY` to indicate the model type.
 - **Model Name**: The name of the model, can be whatever you like.

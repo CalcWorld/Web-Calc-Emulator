@@ -1,9 +1,6 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Popup Display Screen</title>
-</head>
+<meta charset="utf-8">
+<title>Popup Display Screen</title>
 <style>
     html, body {
         margin: 0;
@@ -17,17 +14,11 @@
         left: 0;
         top: 0;
         transform-origin: left top;
-        z-index: -1;
     }
 
     #status {
         position: absolute;
         width: 278px;
-    }
-
-    #status > * > * {
-        /* The initial state is to hide all the status icons because no model has been selected. */
-        opacity: 0;
     }
 
     #screen {
@@ -38,23 +29,14 @@
 
     .pixelated {
         /* http://phrogz.net/tmp/canvas_image_zoom.html */
-        image-rendering: optimizeSpeed;
-        image-rendering: -moz-crisp-edges;
-        image-rendering: -o-crisp-edges;
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: optimize-contrast;
-        image-rendering: crisp-edges;
         image-rendering: pixelated;
-        -ms-interpolation-mode: nearest-neighbor;
     }
 </style>
-<body>
 <div id="container"></div>
 <div id="warning" style="display: none;">
     <div>Cannot open this page directly</div>
     <div>不能直接打开此页面</div>
 </div>
-</body>
 <script>
   const parentWindow = window.opener;
   if (!parentWindow) {
@@ -68,13 +50,10 @@
   const container = document.getElementById("container");
   container.appendChild(parentStatus.cloneNode(true));
   container.appendChild(parentScreen.cloneNode(true));
-  const canvas = document.getElementById("screen");
-  const ctx = canvas.getContext("2d");
-  ctx.putImageData(parentWindow.imageData, 0, 0);
+  const ctx = document.getElementById("screen").getContext("2d");
   const status = document.getElementById("status");
 
   requestAnimationFrame(function render() {
-    const parentStatus = parentDocument.getElementById("status");
     status.innerHTML = parentStatus.innerHTML;
     ctx.putImageData(parentWindow.imageData, 0, 0);
 
@@ -104,4 +83,3 @@
   };
 
 </script>
-</html>

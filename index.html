@@ -1,0 +1,3298 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+<title>ClassWiz Emulator</title>
+<style>
+    @font-face {
+        font-family: "CASIO ClassWiz";
+        src: url("font/CASIOClassWiz.woff2") format("woff2");
+    }
+
+    @font-face {
+        font-family: "CASIO ClassWiz CE";
+        src: url("font/CASIOClassWizCE.woff2") format("woff2");
+    }
+
+    @font-face {
+        font-family: "CASIO ClassWiz DE";
+        src: url("font/CASIOClassWizDE.woff2") format("woff2");
+    }
+
+    @font-face {
+        font-family: "CASIO ClassWiz Fr";
+        src: url("font/CASIOClassWizFr.woff2") format("woff2");
+    }
+
+    @font-face {
+        font-family: "CASIO ClassWiz RS";
+        src: url("font/CASIOClassWizRS.woff2") format("woff2");
+    }
+
+    @font-face {
+        font-family: "CASIO ClassWiz CW01";
+        src: url("font/CASIOClassWizCW01.ttf") format("truetype");
+    }
+
+    @font-face {
+        font-family: "CASIO ClassWiz CW02";
+        src: url("font/CASIOClassWizCW02.ttf") format("truetype");
+    }
+
+    .CASIOClassWiz {
+        font-family: "CASIO ClassWiz" !important;
+    }
+
+    .CASIOClassWizCE {
+        font-family: "CASIO ClassWiz CE" !important;
+    }
+
+    .CASIOClassWizDE {
+        font-family: "CASIO ClassWiz DE" !important;
+    }
+
+    .CASIOClassWizFr {
+        font-family: "CASIO ClassWiz Fr" !important;
+    }
+
+    .CASIOClassWizRS {
+        font-family: "CASIO ClassWiz RS" !important;
+    }
+
+    .CASIOClassWizCW01 {
+        font-family: "CASIO ClassWiz CW01" !important;
+    }
+
+    .CASIOClassWizCW02 {
+        font-family: "CASIO ClassWiz CW02" !important;
+    }
+
+    body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #e0e1df;
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+
+    a {
+        text-decoration: none;
+    }
+
+    ul {
+        list-style: none;
+    }
+
+    svg {
+        vertical-align: middle;
+    }
+
+    #hud {
+        position: absolute;
+        left: 0;
+        top: 0;
+        right: 0;
+        text-align: center;
+        background-color: rgba(224, 225, 223, 0.5);
+        display: flex;
+        justify-content: center;
+        z-index: 1;
+        padding: 2px 0;
+    }
+
+    #hud a {
+        padding: 2px 5px;
+        height: 22px;
+    }
+
+    .hud-icon {
+        width: 20px;
+        height: 20px;
+    }
+
+    .menu-icon {
+        width: 24px;
+        height: 24px;
+    }
+
+    #container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform-origin: left top;
+    }
+
+    #infoOutput {
+        width: 12rem;
+        height: 1.2rem;
+        margin: 1px 0;
+    }
+
+    #infoOutput.keylog {
+        font-size: 1rem;
+        user-select: none;
+        cursor: default;
+    }
+
+    #status {
+        position: absolute;
+        width: 278px;
+    }
+
+    #status.CY {
+        top: 46px;
+        left: 48px;
+    }
+
+    #status.EY {
+        top: 40px;
+        left: 44px;
+    }
+
+    #status > * > * {
+        /* The initial state is to hide all the status icons because no model has been selected. */
+        opacity: 0;
+    }
+
+    #screen {
+        position: absolute;
+        width: 278px;
+    }
+
+    #screen.CY {
+        top: 60px;
+        left: 48px;
+    }
+
+    #screen.EY {
+        top: 54px;
+        left: 44px;
+    }
+
+    .pixelated {
+        /* http://phrogz.net/tmp/canvas_image_zoom.html */
+        image-rendering: pixelated;
+    }
+
+    #keypad > * > * {
+        position: absolute;
+    }
+
+    .active,
+    #keypad > * > *:active {
+        backdrop-filter: invert(1);
+    }
+
+    #modelList {
+        background-color: #e0e1df;
+        margin: 2em auto;
+        overflow-y: scroll;
+        height: calc(100vh - 2em);
+        max-width: 450px;
+        padding: 0 1em;
+    }
+
+    #modelList div {
+        margin: 1rem 0;
+    }
+
+    #modelList div:nth-child(2) {
+        margin-top: 4rem;
+    }
+
+    #modelList div:last-child ul:last-child {
+        margin-bottom: 3rem;
+    }
+
+    #modelList > header {
+        position: absolute;
+        background-color: inherit;
+        width: 100%;
+        max-width: 450px;
+        padding: 15px 0 10px 0;
+        height: 1.5em;
+        margin: 0;
+    }
+
+    #modelList > header .title {
+        font-weight: bold;
+        font-size: 1.5em;
+    }
+
+    #modelList > header .close {
+        font-weight: bold;
+        float: right;
+        margin-right: 2em;
+        cursor: pointer;
+        font-size: 1.5em;
+    }
+
+    #modelList > header .close::before {
+        content: '×';
+    }
+
+    .modelRamList li, #modelList li {
+        padding: 10px 20px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        background-color: #d1d2d0;
+        white-space: normal;
+        line-height: 1.5;
+        margin-bottom: 10px;
+    }
+
+    .modelOption {
+        padding-top: 0.5em;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+        background: currentcolor;
+        border-radius: 4px;
+    }
+
+    .modelCountry {
+        padding: 0;
+        margin: 0 0 5px 0;
+    }
+
+    .modelList {
+        padding-top: 0;
+        padding-bottom: 0;
+        margin-top: 0;
+        margin-bottom: 0;
+        padding-inline-start: 0;
+    }
+
+    .modelRamOption {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    dialog {
+        top: 0;
+        margin: 2.6em auto;
+        width: auto;
+        max-width: 450px;
+        height: 90vh;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+
+    dialog > header {
+        padding: 15px 1em 10px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    dialog > header h2 {
+        margin: 0;
+        font-size: 1.5em;
+    }
+
+    dialog > header .close {
+        font-size: 1.5em;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+        color: gray;
+        background: none;
+        padding: 0;
+        border: 0;
+    }
+
+    dialog > header .close::before {
+        content: "×";
+    }
+
+    dialog > header .close:hover {
+        color: #404040;
+    }
+
+    dialog > section {
+        overflow: auto;
+        padding: 0 1em;
+    }
+
+    dialog > section .group {
+        margin-bottom: 20px;
+    }
+
+    dialog > section .group h3 {
+        margin-top: 0;
+    }
+
+    dialog > section .group .sub-group {
+        margin: 0 20px 20px;
+    }
+
+    dialog .button-container {
+        display: flex;
+    }
+
+    dialog .button {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        margin: 5px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        background-color: #fff;
+        user-select: none;
+    }
+
+    dialog .button.enable {
+        background-color: #ccc;
+    }
+
+    dialog .button:hover {
+        background-color: #ccc;
+    }
+
+    dialog .button:active {
+        background-color: #aaa;
+    }
+
+    dialog .button.clear {
+        background-color: #ffcc66;
+        color: #fff;
+        border: 2px solid #ffcc00;
+    }
+
+    dialog .button.clear:hover {
+        background-color: #ab9966;
+    }
+
+    dialog .button.stop {
+        background-color: #ff6666;
+        color: #fff;
+        border: 2px solid #ff0000;
+    }
+
+    dialog .button.stop:hover {
+        background-color: #ab6666;
+    }
+
+    dialog .flow, dialog .section .flow {
+        margin-bottom: 0;
+    }
+
+    dialog .bottom {
+        height: 10vh;
+        width: 100%;
+    }
+
+    input[type="checkbox"], input[type="radio"] {
+        margin-left: 10px;
+        transform: scale(1.2);
+    }
+
+    input[type="text"] {
+        width: 100%;
+    }
+
+    .select-full {
+        width: 100%;
+        height: 2rem;
+        font-size: 1.2rem;
+    }
+
+    .setting-menu-icon-list {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 5px 0;
+    }
+
+    .settings-menu-icon {
+        width: 1.6em;
+        height: 1.6em;
+    }
+
+    #screenshotPreview {
+        position: fixed;
+        top: -100vh;
+        left: 50%;
+        transform: translateX(-50%);
+        max-width: calc(100vw - 20px);
+        opacity: 0;
+        transition: top 0.3s ease-out, opacity 0.3s ease-out;
+    }
+
+    #screenshotPreview.appear {
+        top: 35%;
+        opacity: 1;
+    }
+
+    .menu-container {
+        position: absolute;
+        height: 100vh;
+        width: 100vw;
+        top: 0;
+        overflow: hidden;
+        backdrop-filter: blur(0);
+        transition: backdrop-filter 0.3s ease-in-out;
+        display: none;
+        z-index: 2;
+    }
+
+    .menu-container.menu-active {
+        display: block;
+        background-color: #000;
+        opacity: 0.6;
+    }
+
+    .menu {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 70vw;
+        max-width: 400px;
+        min-width: 250px;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: auto;
+        background-color: #b0b0b0;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease-in-out;
+        user-select: none;
+        z-index: 3;
+    }
+
+    .menu.menu-active {
+        transform: none;
+    }
+
+    .menu-list {
+        padding: 0;
+        margin: 2.6em 20px auto;
+    }
+
+    .menu-item {
+        font-size: 20px;
+        font-weight: bold;
+        padding: 10px 0;
+        margin: 5px 0;
+        cursor: pointer;
+    }
+
+    .menu-info {
+        color: #777;
+        font-size: 12px;
+        text-align: center;
+        padding: 0.5rem 0 0.7em;
+        border-top: 1px solid #ccc;
+    }
+
+    .menu-info a {
+        color: #777;
+        text-decoration: underline;
+    }
+
+    #keylogPreview, #autoKeyInputFont, #autoKeyInputText, #autoKeyPreview {
+        overflow-wrap: break-word;
+        word-break: break-all;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        font-size: 1.4rem;
+        margin: 0 5px;
+        min-height: 4rem;
+    }
+</style>
+<div id="container" style="display: none;">
+    <svg id="status" viewBox="0 0 576 24">
+        <g id="statusCY">
+            <svg x="1" y="2" width="19" height="20" viewBox="0 0 10.8 11.3">
+                <path
+                        d="M9.6,0H1.1C0.5,0,0,0.5,0,1.1v9.1c0,0.6,0.5,1.1,1.1,1.1c0,0,0,0,0,0h8.5c0.6,0,1.1-0.5,1.1-1.1c0,0,0,0,0,0V1.1
+			C10.8,0.5,10.3,0,9.6,0z M5.3,10.4c-2.2,0-3-1-3-2.6V7.4h1.9v0.3c0,0.9,0.3,1.4,1.3,1.4c0.6,0,1.1-0.4,1.1-1c0,0,0-0.1,0-0.1
+			c0-0.8-0.4-1.1-1.7-1.6C3.2,5.9,2.4,5.2,2.4,3.7c0-1.8,1.1-2.7,3-2.7c1.7,0,3,0.7,3,2.4v0.3H6.5c0-0.9-0.3-1.4-1-1.4
+			c-0.5-0.1-1,0.3-1.1,0.8c0,0.1,0,0.2,0,0.3c0,0.6,0.2,0.9,1,1.2l1.5,0.6c1.4,0.6,1.8,1.3,1.8,2.4C8.6,9.6,7.4,10.4,5.3,10.4z"/>
+            </svg>
+            <svg x="25" y="2" width="19" height="20" viewBox="0 0 10.77 11.33791">
+                <polygon points="5.372 2.753 4.449 6.843 6.322 6.843 5.398 2.753 5.372 2.753"/>
+                <path
+                        d="M9.6357,0H1.1328A1.13361,1.13361,0,0,0,0,1.13281v9.0699a1.13348,1.13348,0,0,0,1.1328,1.1352H9.6357a1.13354,1.13354,0,0,0,1.1343-1.1352V1.13281A1.13368,1.13368,0,0,0,9.6357,0ZM7.0981,10.27,6.6567,8.34621H4.1137L3.6723,10.27H1.665L4.1943,1.17291H6.5761L9.1054,10.27Z"/>
+            </svg>
+            <svg x="53" y="4" width="17" height="18" viewBox="0 0 9.8486 10.1801">
+                <path
+                        d="M6.7876,0h3.061V10.1801H7.8662V3.2944q0-.29655.0068-.832.00735-.5355.0068-.8252L5.9506,10.1801H3.8838L1.9682,1.6372q0,.29.0069.8252.0066.53535.0068.832v6.8857H0V0H3.0952l1.853,8.0049Z"/>
+            </svg>
+            <svg x="84" y="3" width="24" height="19" viewBox="0 0 13.4228 10.6924">
+                <polygon
+                        points="4.073 0 4.073 2.47 5.355 2.47 5.355 1.284 12.139 1.284 12.139 9.409 5.355 9.409 5.355 8.224 4.073 8.224 4.073 10.692 13.423 10.692 13.423 0 4.073 0"/>
+                <polygon
+                        points="5.622 5.347 2.535 2.259 2.535 3.829 0 3.829 0 6.863 2.535 6.863 2.535 8.433 5.622 5.347"/>
+                <path
+                        d="M9.3096,7.9663a.69956.69956,0,0,1-.6143-.2954A4.39949,4.39949,0,0,1,8.291,6.3301a6.28019,6.28019,0,0,1-.9419,1.3422,1.0611,1.0611,0,0,1-.7456.294.78444.78444,0,0,1-.5728-.2183.73786.73786,0,0,1-.2216-.5454A.63761.63761,0,0,1,5.9824,6.75a.57577.57577,0,0,1,.4297-.1856.55873.55873,0,0,1,.3218.0913.6307.6307,0,0,1,.2182.313.60373.60373,0,0,0,.0718.1524h.0024a.19462.19462,0,0,0,.1348-.0816,14.5353,14.5353,0,0,0,.9658-1.5468l-.3735-1.565a.48926.48926,0,0,0-.0972-.228.16665.16665,0,0,0-.1328-.0542c-.1128,0-.3506.1152-.6733.88669l-.0532.12651-.4649-.273.0396-.0962a3.4825,3.4825,0,0,1,.7212-1.2168,1.13277,1.13277,0,0,1,.768-.3466.706.706,0,0,1,.606.3042,4.52815,4.52815,0,0,1,.4131,1.2612c.3349-.5298.5507-.8516.6577-.9795a1.71254,1.71254,0,0,1,.5132-.4595,1.06489,1.06489,0,0,1,.4907-.1264.73384.73384,0,0,1,.5259.1914.67778.67778,0,0,1,.2036.5122.71235.71235,0,0,1-.1636.4868.55.55,0,0,1-.4292.1914.53713.53713,0,0,1-.4966-.3608c-.0459-.0953-.083-.1167-.0923-.1167a.246.246,0,0,0-.1484.0917c-.0508.0557-.251.3423-.9111,1.39309l.372,1.50731a.97652.97652,0,0,0,.1416.4004.17233.17233,0,0,0,.1387.0645c.1235,0,.4072-.1221.9194-.9395l.0611-.0981.4497.2573-.0576.104a3.99953,3.99953,0,0,1-.9131,1.18509,1.40133,1.40133,0,0,1-.832.37011Z"/>
+            </svg>
+            <svg x="121" y="4" width="38" height="18" viewBox="0 0 22.1807 10.6021">
+                <polygon
+                        points="7.391 1.442 16.216 1.442 16.216 0 6.301 0 3.56 8.71 1.591 4.695 0 4.695 2.853 10.602 4.52 10.602 7.391 1.442"/>
+                <polygon
+                        points="14.661 9.28 9.43 9.28 9.43 4.107 13.339 4.107 13.339 5.094 14.661 5.094 14.661 2.786 8.108 2.786 8.108 10.602 14.661 10.602 14.661 9.28"/>
+                <polygon points="15.601 8.325 22.181 3.54 20.517 1.248 13.944 6.028 15.601 8.325"/>
+                <polygon points="13.425 6.403 12.674 8.698 15.08 8.694 13.426 6.402 13.425 6.403"/>
+            </svg>
+            <svg x="172" y="2" width="19" height="20" viewBox="0 0 10.7705 11.33791">
+                <path
+                        d="M9.6357,0H1.1328A1.13361,1.13361,0,0,0,0,1.13281v9.0699a1.13348,1.13348,0,0,0,1.1328,1.1352H9.6357a1.1339,1.1339,0,0,0,1.1348-1.1352V1.13281A1.134,1.134,0,0,0,9.6357,0ZM5.4306,10.27H2.3926V1.17291H5.5508c2.6767,0,3.1582,1.7456,3.1582,4.4214C8.709,8.81741,7.9863,10.27,5.4306,10.27Z"/>
+                <path
+                        d="M5.1357,2.52351H4.3203v6.396h.8564c1.3379,0,1.6055-.8028,1.6055-3.27451C6.7822,3.58111,6.6084,2.52351,5.1357,2.52351Z"/>
+            </svg>
+            <svg x="193" y="2" width="19" height="20" viewBox="0 0 10.7696 11.33791">
+                <path
+                        d="M9.6358,0H1.1329A1.1337,1.1337,0,0,0,0,1.13281v9.0699a1.13356,1.13356,0,0,0,1.1329,1.1352H9.6358a1.13312,1.13312,0,0,0,1.1338-1.1352V1.13281A1.13325,1.13325,0,0,0,9.6358,0ZM8.8956,10.27H6.8086a1.70621,1.70621,0,0,1-.2412-.95549l-.0537-1.7456A1.03424,1.03424,0,0,0,5.376,6.42241H4.3458V10.27H2.419V1.17291H5.9786c1.5791,0,2.5429.79,2.5429,2.3442a1.999,1.999,0,0,1-1.5927,2.2427v.0254c1.3115.1655,1.5117.8535,1.539,2.7773.0127.9556.0664,1.4527.4278,1.6309Z"/>
+                <path
+                        d="M5.2559,2.52351H4.3458V5.148h.8027c.9238,0,1.4453-.38189,1.4453-1.36329C6.5938,2.94391,6.126,2.52351,5.2559,2.52351Z"/>
+            </svg>
+            <svg x="214" y="2" width="19" height="20" viewBox="0 0 10.7705 11.33791">
+                <path
+                        d="M9.6357,0H1.1328A1.13361,1.13361,0,0,0,0,1.13281v9.0699a1.13348,1.13348,0,0,0,1.1328,1.1352H9.6357a1.1339,1.1339,0,0,0,1.1348-1.1352V1.13281A1.134,1.134,0,0,0,9.6357,0ZM8.502,10.27H7.083V9.42921H7.0566a2.17568,2.17568,0,0,1-2.0068,1.0191c-2.3691,0-2.8379-1.6817-2.8379-4.8286,0-3.0581.75-4.625,3.2119-4.625,2.1143,0,2.9707,1.0317,2.9707,2.8794H6.5479c0-.6753-.3213-1.5289-1.0967-1.5289-.9375,0-1.3115.917-1.3115,3.1851,0,2.1914.2138,3.5674,1.3242,3.5674a1.359,1.359,0,0,0,1.1914-1.4522v-.9301H5.3838V5.36481H8.502Z"/>
+            </svg>
+            <svg x="244" y="4" width="36" height="18" viewBox="0 0 19.9287 10.0996">
+                <path d="M0,0H5.9238V1.6694H2.1382v2.376h3.563V5.7148H2.1382v4.3848H0Z"/>
+                <path d="M8.1685,10.0996V0h2.1381V10.0996Z"/>
+                <path
+                        d="M12.3418,0h2.3608l1.3658,3.2676L17.4194,0h2.3311L17.2857,4.99309l2.643,5.10651H17.5234L15.9941,6.6767,14.48,10.0996H12.1338l2.6431-5.10651Z"/>
+            </svg>
+            <svg x="284" y="4" width="33" height="18" viewBox="0 0 19.13181 10.4956">
+                <path
+                        d="M2.1377,7.1431V7.44c0,.9477.2822,1.5561,1.4106,1.5561A1.194,1.194,0,0,0,4.8252,7.7515c0-.9194-.4898-1.2593-1.90039-1.7261C1.0244,5.4033.1484,4.6533.1484,2.9702.1484,1.0044,1.4106,0,3.4297,0,5.3301,0,6.7109.77789,6.7109,2.7158v.2828H4.6616c0-.9478-.3413-1.4995-1.1577-1.4995A1.06609,1.06609,0,0,0,2.2866,2.6734c0,.622.1929,1.0044,1.0987,1.372l1.6479.6787c1.6035.6651,2.019,1.4429,2.019,2.6734,0,2.1362-1.3657,3.0981-3.6821,3.0981C.9502,10.4956,0,9.4204,0,7.5533V7.1431Z"/>
+                <path
+                        d="M12.981,3.607c0-1.4712-.3116-2.1079-1.2769-2.1079-1.0835,0-1.3359,1.0327-1.3359,3.8901,0,3.0552.4453,3.6069,1.3657,3.6069.772,0,1.3364-.3818,1.3364-2.56H15.208c0,2.1782-.564,4.0595-3.3701,4.0595-3.207,0-3.6079-2.17871-3.6079-5.248S8.6309,0,11.8379,0c3.0586,0,3.2812,2.1358,3.2812,3.607Z"/>
+                <path d="M16.9937,10.2974V.1978h2.13811V10.2974Z"/>
+            </svg>
+            <svg x="330" y="4" width="17" height="18" viewBox="0 0 9.1538 10.1992">
+                <path
+                        d="M7.7329,8.6973A3.15,3.15,0,0,1,5.502,9.501H4.274a1.10672,1.10672,0,0,1-.6338-.1519.40012.40012,0,0,1-.1451-.351V5.3111h.2818a2.17858,2.17858,0,0,1,1.5679.5053A2.27861,2.27861,0,0,1,5.9009,7.207H6.399V2.8565H5.917a2.08612,2.08612,0,0,1-.5879,1.3076,2.127,2.127,0,0,1-1.4663.4663H3.4951V1.1792a.44734.44734,0,0,1,.1451-.355A.69926.69926,0,0,1,4.1089.6973H5.502a2.614,2.614,0,0,1,2.0439.6958A3.36449,3.36449,0,0,1,8.292,3.083h.523L8.5572,0H0V.7251H.5708a1.04858,1.04858,0,0,1,.583.1172.42371.42371,0,0,1,.1612.3657V8.8853a.57662.57662,0,0,1-.1612.4292.64836.64836,0,0,1-.4726.1577H0v.727H8.937l.2168-3.373H8.669a3.48768,3.48768,0,0,1-.9361,1.8711"/>
+            </svg>
+            <svg x="358" y="2" width="9" height="19" viewBox="0 0 5.13003 11.0655">
+                <path
+                        d="M4.72912,8.6973c-.4809.5078-2.083,1.4932-2.415.9302-.20309-.3482.0591-1.0474.1001-1.1821L3.858,3.3731H3.41712l-2.959.4941L.319,4.3545H.62322a.86745.86745,0,0,1,.4101.0928.31107.31107,0,0,1,.1758.2969,5.5246,5.5246,0,0,1-.227.9673l-.857,2.83c-.34909,1.1846.00391,2.524,1.419,2.524A4.76521,4.76521,0,0,0,5.13,9.0332Z"/>
+                <path d="M3.05632,0a1.29055,1.29055,0,1,0,1.2929,1.2911A1.28965,1.28965,0,0,0,3.05632,0"/>
+            </svg>
+            <svg x="376" y="4" width="17" height="17" viewBox="0 0 9.6616 9.708">
+                <polygon points="0 9.708 9.662 0 9.662 2.033 3.342 8.314 9.662 8.314 9.662 9.708 0 9.708"/>
+            </svg>
+            <svg x="399" y="4" width="19" height="18" viewBox="0 0 11.2598 10.7637">
+                <path
+                        d="M0,5.1333H2.9571V0H8.3038V5.1333h2.956L5.6294,10.7637ZM5.6294,9.3838l3.274-3.27341H7.3267V.9756H3.9332V6.11039H2.3555Z"/>
+            </svg>
+            <svg x="428" y="5" width="16" height="15" viewBox="0 0 8.8818 8.87345">
+                <path
+                        d="M8.0645.0887a.5179.5179,0,0,1,.8173.5005V8.284a.51685.51685,0,0,1-.8173.4995L.3369,4.848c-.4492-.2281-.4492-.6011,0-.8296Z"/>
+            </svg>
+            <svg x="450" y="5" width="15" height="15" viewBox="0 0 8.87306 8.88317">
+                <path
+                        d="M.08893.8159A.51645.51645,0,0,1,.58793,0h7.6953a.51641.51641,0,0,1,.501.815L4.84673,8.5474c-.2285.4477-.6016.4477-.82909,0Z"/>
+            </svg>
+            <svg x="470" y="4" width="16" height="16" viewBox="0 0 8.87472 8.88325">
+                <path
+                        d="M.08868,8.06725a.51713.51713,0,0,0,.501.816H8.285a.51658.51658,0,0,0,.501-.815L4.84848.33535c-.2285-.4473-.6015-.4473-.8291.001Z"/>
+            </svg>
+            <svg x="493" y="5" width="16" height="15" viewBox="0 0 8.8857 8.87345">
+                <path
+                        d="M.8164.0887A.51744.51744,0,0,0,0,.5892V8.284a.51639.51639,0,0,0,.8164.4995L8.54881,4.848c.44919-.2281.44919-.6011,0-.8296Z"/>
+            </svg>
+            <svg x="518" y="2" width="23" height="19" viewBox="0 0 12.65821 10.45951">
+                <path
+                        d="M11.6113,0H1.0449A1.04619,1.04619,0,0,0,0,1.045V9.41211a1.04605,1.04605,0,0,0,1.0449,1.0474H11.6113a1.04585,1.04585,0,0,0,1.04691-1.0474V1.045A1.046,1.046,0,0,0,11.6113,0ZM5.5664,8.65291H3.7891V1.80671H5.5664Zm3.3027,0H7.0928V1.80671H8.8691Z"/>
+            </svg>
+            <svg x="551" y="0" width="23" height="23" viewBox="0 0 12.65297 12.65052">
+                <path
+                        d="M7.43945,2.068,6.54885.193c-.1221-.25729-.3213-.25729-.4424,0l-.8906,1.875a4.37567,4.37567,0,0,1,1.1123-.1587A4.38648,4.38648,0,0,1,7.43945,2.068Z"/>
+                <path
+                        d="M10.12205,4.10117l.6983-1.9565c.0957-.2666-.0449-.4063-.3135-.3115l-1.957.6943a4.53248,4.53248,0,0,1,.9004.6767A4.327,4.327,0,0,1,10.12205,4.10117Z"/>
+                <path
+                        d="M12.46,6.10457,10.58405,5.214a4.448,4.448,0,0,1,.1572,1.1109,4.347,4.347,0,0,1-.1572,1.1118L12.46,6.546C12.71775,6.42687,12.71685,6.22517,12.46,6.10457Z"/>
+                <path
+                        d="M10.12205,8.54947a4.34549,4.34549,0,0,1-.6738.8969,4.32738,4.32738,0,0,1-.8984.6748l1.956.6963c.2696.0967.4102-.0449.3135-.3115Z"/>
+                <path
+                        d="M5.21485,10.58167l.8897,1.875c.1211.2583.3222.2583.4423.001l.8916-1.876a4.34948,4.34948,0,0,1-1.1123.1572A4.19237,4.19237,0,0,1,5.21485,10.58167Z"/>
+                <path
+                        d="M2.53025,8.54947l-.6962,1.9541c-.0967.269.04391.4106.3115.3139l1.9551-.6963a4.52142,4.52142,0,0,1-.8965-.6748A4.2829,4.2829,0,0,1,2.53025,8.54947Z"/>
+                <path
+                        d="M1.91215,6.32387a4.33622,4.33622,0,0,1,.1562-1.1099l-1.872.8906c-.2608.1206-.2618.3223-.003.4414l1.875.8907A4.46183,4.46183,0,0,1,1.91215,6.32387Z"/>
+                <path
+                        d="M2.53025,4.10117a4.28053,4.28053,0,0,1,.6768-.89841,4.39193,4.39193,0,0,1,.8936-.67529l-1.9522-.6943c-.27049-.0977-.4121.0424-.3144.3115Z"/>
+                <path d="M6.32815,2.78767a3.53665,3.53665,0,1,0,3.5352,3.5362A3.53651,3.53651,0,0,0,6.32815,2.78767Z"/>
+            </svg>
+        </g>
+        <g id="statusEY" style="transform: translateX(6.3%);">
+            <svg x="1" y="2" width="19" height="20" viewBox="0 0 10.77 11.338">
+                <path
+                        d="M9.636,0H1.133C.508,0,0,.508,0,1.133V10.203c0,.628,.508,1.135,1.133,1.135H9.636c.627,0,1.134-.507,1.134-1.135V1.133c0-.625-.507-1.133-1.134-1.133ZM5.301,10.448c-2.181,0-3.038-.968-3.038-2.65v-.37h1.927v.268c0,.853,.254,1.401,1.271,1.401,.589,0,1.151-.356,1.151-1.121,0-.828-.441-1.134-1.713-1.554-1.713-.561-2.502-1.236-2.502-2.752C2.398,1.899,3.535,.995,5.355,.995c1.713,0,2.957,.701,2.957,2.446v.255h-1.847c0-.854-.308-1.351-1.043-1.351-.87,0-1.097,.522-1.097,1.057,0,.561,.174,.905,.99,1.236l1.485,.611c1.445,.599,1.82,1.3,1.82,2.408,0,1.924-1.231,2.79-3.319,2.79Z"/>
+            </svg>
+            <svg x="32" y="4" width="38" height="18" viewBox="0 0 22.181 10.602">
+                <polygon
+                        points="7.391 1.442 16.216 1.442 16.216 0 6.301 0 3.56 8.71 1.591 4.695 0 4.695 2.853 10.602 4.52 10.602 7.391 1.442"/>
+                <polygon
+                        points="14.661 9.28 9.43 9.28 9.43 4.107 13.339 4.107 13.339 5.094 14.661 5.094 14.661 2.786 8.108 2.786 8.108 10.602 14.661 10.602 14.661 9.28"/>
+                <polygon points="15.601 8.325 22.181 3.54 20.517 1.248 13.944 6.028 15.601 8.325"/>
+                <polygon points="13.425 6.403 12.674 8.698 15.08 8.694 13.426 6.402 13.425 6.403"/>
+            </svg>
+            <svg x="81" y="2" width="19" height="20" viewBox="0 0 10.77 11.338">
+                <path
+                        d="M9.636,0H1.133C.508,0,0,.508,0,1.133V10.203c0,.628,.508,1.135,1.133,1.135H9.636c.627,0,1.135-.507,1.135-1.135V1.133c0-.625-.508-1.133-1.135-1.133ZM5.431,10.27H2.393V1.173h3.158c2.677,0,3.158,1.746,3.158,4.421,0,3.223-.723,4.676-3.278,4.676Z"/>
+                <path d="M5.136,2.524h-.815v6.396h.856c1.338,0,1.605-.803,1.605-3.275,0-2.064-.174-3.121-1.646-3.121Z"/>
+            </svg>
+            <svg x="107" y="2" width="19" height="20" viewBox="0 0 10.77 11.338">
+                <path
+                        d="M9.636,0H1.133C.508,0,0,.508,0,1.133V10.203c0,.628,.508,1.135,1.133,1.135H9.636c.627,0,1.134-.507,1.134-1.135V1.133c0-.625-.507-1.133-1.134-1.133Zm-.74,10.27h-2.087c-.188-.255-.228-.599-.241-.955l-.054-1.746c-.026-.713-.361-1.146-1.138-1.146h-1.03v3.848h-1.927V1.173h3.56c1.579,0,2.543,.79,2.543,2.344,0,1.21-.509,2.026-1.593,2.243v.025c1.311,.165,1.512,.853,1.539,2.777,.013,.956,.066,1.453,.428,1.631v.077Z"/>
+                <path d="M5.256,2.524h-.91v2.624h.803c.924,0,1.445-.382,1.445-1.363,0-.841-.468-1.261-1.338-1.261Z"/>
+            </svg>
+            <svg x="132" y="2" width="19" height="20" viewBox="0 0 10.77 11.338">
+                <path
+                        d="M9.636,0H1.133C.508,0,0,.508,0,1.133V10.203c0,.628,.508,1.135,1.133,1.135H9.636c.627,0,1.135-.507,1.135-1.135V1.133c0-.625-.508-1.133-1.135-1.133Zm-1.134,10.27h-1.419v-.841h-.026c-.455,.713-1.11,1.019-2.007,1.019-2.369,0-2.838-1.682-2.838-4.829C2.212,2.562,2.962,.995,5.424,.995c2.114,0,2.971,1.032,2.971,2.879h-1.847c0-.675-.321-1.529-1.097-1.529-.937,0-1.311,.917-1.311,3.185,0,2.191,.214,3.567,1.324,3.567,.455,0,1.191-.471,1.191-1.452v-.93h-1.271v-1.351h3.118v4.905Z"/>
+            </svg>
+            <svg x="163" y="4" width="36" height="18" viewBox="0 0 19.929 10.1">
+                <path d="M0,0H5.924V1.669H2.138v2.376h3.563v1.669H2.138v4.385H0V0Z"/>
+                <path d="M8.169,10.1V0h2.138V10.1h-2.138Z"/>
+                <path
+                        d="M12.342,0h2.361l1.366,3.268,1.351-3.268h2.331l-2.465,4.993,2.643,5.107h-2.405l-1.529-3.423-1.514,3.423h-2.346l2.643-5.107L12.342,0Z"/>
+            </svg>
+            <svg x="205" y="4" width="33" height="18" viewBox="0 0 19.132 10.496">
+                <path
+                        d="M2.138,7.143v.297c0,.948,.282,1.556,1.411,1.556,.653,0,1.277-.396,1.277-1.245,0-.919-.49-1.259-1.9-1.726C1.024,5.403,.148,4.653,.148,2.97,.148,1.004,1.411,0,3.43,0c1.9,0,3.281,.778,3.281,2.716v.283h-2.049c0-.948-.341-1.499-1.158-1.499-.965,0-1.217,.58-1.217,1.174,0,.622,.193,1.004,1.099,1.372l1.648,.679c1.603,.665,2.019,1.443,2.019,2.673,0,2.136-1.366,3.098-3.682,3.098-2.42,0-3.37-1.075-3.37-2.942v-.41H2.138Z"/>
+                <path
+                        d="M12.981,3.607c0-1.471-.312-2.108-1.277-2.108-1.083,0-1.336,1.033-1.336,3.89,0,3.055,.445,3.607,1.366,3.607,.772,0,1.336-.382,1.336-2.56h2.138c0,2.178-.564,4.059-3.37,4.059-3.207,0-3.608-2.179-3.608-5.248s.401-5.248,3.608-5.248c3.059,0,3.281,2.136,3.281,3.607h-2.138Z"/>
+                <path d="M16.994,10.297V.198h2.138V10.297h-2.138Z"/>
+            </svg>
+            <svg x="251" y="4" width="17" height="18" viewBox="0 0 9.154 10.199">
+                <path
+                        d="M7.733,8.697c-.576,.539-1.331,.804-2.231,.804h-1.228c-.275,0-.487-.05-.634-.152-.097-.069-.145-.186-.145-.351v-3.687h.282c.698,0,1.221,.17,1.568,.505,.296,.287,.478,.754,.556,1.391h.498V2.856h-.482c-.083,.589-.276,1.028-.588,1.308-.347,.31-.836,.466-1.466,.466h-.368V1.179c0-.151,.048-.27,.145-.355,.096-.085,.252-.127,.469-.127h1.393c.976,0,1.59,.225,2.044,.696,.367,.38,.577,.916,.746,1.69h.523l-.258-3.083H0V.725H.571c.28,0,.475,.039,.583,.117,.107,.079,.161,.2,.161,.366v7.677c0,.181-.054,.323-.161,.429-.108,.106-.266,.158-.473,.158H0v.727H8.937l.217-3.373h-.485c-.176,.802-.465,1.431-.936,1.871"/>
+            </svg>
+            <svg x="279" y="2" width="9" height="19" viewBox="0 0 5.13 11.065">
+                <path
+                        d="M4.729,8.697c-.481,.508-2.083,1.493-2.415,.93-.203-.348,.059-1.047,.1-1.182L3.858,3.373h-.441L.458,3.867l-.139,.487h.304c.144,0,.3,.03,.41,.093,.11,.063,.175,.145,.176,.297,.003,.199-.16,.732-.227,.967L.125,8.541c-.349,1.185,.004,2.524,1.419,2.524,1.463-.008,2.586-.851,3.586-2.032l-.401-.336Z"/>
+                <path
+                        d="M3.056,0c-.716,.003-1.289,.578-1.289,1.291,0,.717,.574,1.29,1.289,1.29,.719,0,1.292-.573,1.293-1.29,0-.713-.574-1.288-1.293-1.291"/>
+            </svg>
+            <svg x="297" y="4" width="17" height="17" viewBox="0 0 9.662 9.708">
+                <polygon points="0 9.708 9.662 0 9.662 2.033 3.342 8.314 9.662 8.314 9.662 9.708 0 9.708"/>
+            </svg>
+            <svg x="322" y="4" width="19" height="18" viewBox="0 0 11.26 10.764">
+                <path
+                        d="M0,5.133H2.957V0h5.347V5.133h2.956l-5.63,5.63L0,5.133Zm5.629,4.25l3.274-3.273h-1.577V.976H3.933V6.11h-1.578l3.274,3.273Z"/>
+            </svg>
+            <svg x="351" y="2" width="19" height="20" viewBox="0 0 10.988 10.988">
+                <path
+                        d="M5.494,0C2.46,0,0,2.46,0,5.494s2.46,5.494,5.494,5.494,5.494-2.46,5.494-5.494S8.528,0,5.494,0Zm-.916,8.555L1.651,5.628l1.363-1.363,1.564,1.565,3.396-3.396,1.363,1.363-4.759,4.758Z"/>
+            </svg>
+            <svg x="381" y="5" width="16" height="15" viewBox="0 0 8.882 8.873">
+                <path
+                        d="M8.064,.089c.449-.227,.817-.002,.817,.5v7.695c0,.504-.368,.729-.817,.499L.337,4.848c-.449-.228-.449-.601,0-.83L8.064,.089Z"/>
+            </svg>
+            <svg x="407" y="5" width="15" height="15" viewBox="0 0 8.873 8.883">
+                <path
+                        d="M.089,.816c-.228-.45-.003-.816,.499-.816h7.695c.504,0,.728,.366,.501,.815l-3.937,7.732c-.228,.448-.602,.448-.829,0L.089,.816Z"/>
+            </svg>
+            <svg x="430" y="4" width="16" height="16" viewBox="0 0 8.875 8.883">
+                <path
+                        d="M.089,8.067c-.227,.45-.002,.816,.501,.816h7.695c.503,0,.729-.366,.501-.815L4.848,.335c-.228-.447-.601-.447-.829,0L.089,8.067Z"/>
+            </svg>
+            <svg x="455" y="5" width="16" height="15" viewBox="0 0 8.886 8.873">
+                <path
+                        d="M.816,.089c-.448-.227-.816-.002-.816,.5v7.695c0,.504,.368,.729,.816,.499l7.732-3.935c.449-.228,.449-.601,0-.83L.816,.089Z"/>
+            </svg>
+            <svg x="483" y="2" width="23" height="19" viewBox="0 0 12.658 10.46">
+                <path
+                        d="M11.611,0H1.045C.469,0,0,.469,0,1.045V9.412c0,.58,.469,1.047,1.045,1.047H11.611c.579,0,1.047-.468,1.047-1.047V1.045c0-.576-.468-1.045-1.047-1.045ZM5.566,8.653h-1.777V1.807h1.777v6.846Zm3.303,0h-1.776V1.807h1.776v6.846Z"/>
+            </svg>
+            <svg x="515" y="0" width="23" height="23" viewBox="0 0 12.653 12.651">
+                <path
+                        d="M7.439,2.068L6.549,.193c-.122-.257-.321-.257-.442,0l-.891,1.875c.357-.093,.725-.159,1.112-.159,.385,0,.754,.065,1.111,.159Z"/>
+                <path
+                        d="M10.122,4.101l.698-1.956c.096-.267-.045-.406-.313-.311l-1.957,.694c.319,.188,.624,.403,.9,.677,.271,.272,.487,.579,.672,.897Z"/>
+                <path
+                        d="M12.46,6.105l-1.876-.891c.093,.357,.156,.726,.157,1.111,0,.387-.064,.755-.157,1.112l1.876-.891c.258-.119,.257-.321,0-.441Z"/>
+                <path
+                        d="M10.122,8.549c-.185,.319-.402,.625-.674,.897-.274,.275-.579,.488-.898,.675l1.956,.696c.27,.097,.41-.045,.313-.311l-.697-1.956Z"/>
+                <path
+                        d="M5.215,10.582l.89,1.875c.121,.258,.322,.258,.442,0l.892-1.876c-.357,.094-.727,.157-1.112,.157-.386,.003-.754-.063-1.111-.157Z"/>
+                <path
+                        d="M2.53,8.549l-.696,1.954c-.097,.269,.044,.411,.311,.314l1.955-.696c-.316-.186-.622-.403-.896-.675-.274-.272-.487-.578-.674-.897Z"/>
+                <path
+                        d="M1.912,6.324c-.002-.387,.064-.752,.156-1.11L.196,6.105c-.261,.121-.262,.322-.003,.441l1.875,.891c-.092-.358-.156-.727-.156-1.113Z"/>
+                <path
+                        d="M2.53,4.101c.187-.321,.402-.625,.677-.898,.271-.274,.577-.487,.894-.675l-1.952-.694c-.27-.098-.412,.042-.314,.311l.696,1.956Z"/>
+                <path
+                        d="M6.328,2.788c-1.953,0-3.537,1.583-3.537,3.536s1.584,3.537,3.537,3.537,3.535-1.584,3.535-3.537-1.584-3.536-3.535-3.536Z"/>
+            </svg>
+        </g>
+    </svg>
+    <canvas id="screen" class="pixelated"></canvas>
+    <div id="keypad">
+        <div id="keypadCY">
+            <div data-ki="128" data-ko="1" style="left: 35px; top: 181px; width: 35px; height: 35px;"></div>
+            <div data-ki="128" data-ko="2" style="left: 82px; top: 181px; width: 35px; height: 35px;"></div>
+            <div data-ki="128" data-ko="16" style="left: 257px; top: 181px; width: 35px; height: 35px;"></div>
+            <div data-ki="0" data-ko="0" style="left: 304px; top: 181px; width: 35px; height: 35px;"></div>
+            <div data-ki="128" data-ko="4" style="left: 170px; top: 178px; width: 35px; height: 35px;"></div>
+            <div data-ki="64" data-ko="8" style="left: 170px; top: 227px; width: 35px; height: 35px;"></div>
+            <div data-ki="64" data-ko="4" style="left: 127px; top: 202px; width: 35px; height: 35px;"></div>
+            <div data-ki="128" data-ko="8" style="left: 212px; top: 202px; width: 35px; height: 35px;"></div>
+            <div data-ki="64" data-ko="1" style="left: 32px; top: 247px; width: 45px; height: 27px;"></div>
+            <div data-ki="64" data-ko="2" style="left: 85px; top: 247px; width: 45px; height: 27px;"></div>
+            <div data-ki="64" data-ko="16" style="left: 243px; top: 247px; width: 45px; height: 27px;"></div>
+            <div data-ki="64" data-ko="32" style="left: 296px; top: 247px; width: 45px; height: 27px;"></div>
+            <div data-ki="32" data-ko="1" style="left: 32px; top: 291px; width: 45px; height: 27px;"></div>
+            <div data-ki="32" data-ko="2" style="left: 85px; top: 291px; width: 45px; height: 27px;"></div>
+            <div data-ki="32" data-ko="4" style="left: 138px; top: 291px; width: 45px; height: 27px;"></div>
+            <div data-ki="32" data-ko="8" style="left: 191px; top: 291px; width: 45px; height: 27px;"></div>
+            <div data-ki="32" data-ko="16" style="left: 243px; top: 291px; width: 45px; height: 27px;"></div>
+            <div data-ki="32" data-ko="32" style="left: 296px; top: 291px; width: 45px; height: 27px;"></div>
+            <div data-ki="16" data-ko="1" style="left: 32px; top: 336px; width: 45px; height: 27px;"></div>
+            <div data-ki="16" data-ko="2" style="left: 85px; top: 336px; width: 45px; height: 27px;"></div>
+            <div data-ki="16" data-ko="4" style="left: 138px; top: 336px; width: 45px; height: 27px;"></div>
+            <div data-ki="16" data-ko="8" style="left: 191px; top: 336px; width: 45px; height: 27px;"></div>
+            <div data-ki="16" data-ko="16" style="left: 243px; top: 336px; width: 45px; height: 27px;"></div>
+            <div data-ki="16" data-ko="32" style="left: 296px; top: 336px; width: 45px; height: 27px;"></div>
+            <div data-ki="8" data-ko="1" style="left: 32px; top: 380px; width: 45px; height: 27px;"></div>
+            <div data-ki="8" data-ko="2" style="left: 85px; top: 380px; width: 45px; height: 27px;"></div>
+            <div data-ki="8" data-ko="4" style="left: 138px; top: 380px; width: 45px; height: 27px;"></div>
+            <div data-ki="8" data-ko="8" style="left: 191px; top: 380px; width: 45px; height: 27px;"></div>
+            <div data-ki="8" data-ko="16" style="left: 243px; top: 380px; width: 45px; height: 27px;"></div>
+            <div data-ki="8" data-ko="32" style="left: 296px; top: 380px; width: 45px; height: 27px;"></div>
+            <div data-ki="4" data-ko="1" style="left: 33px; top: 428px; width: 55px; height: 38px;"></div>
+            <div data-ki="4" data-ko="2" style="left: 96.5px; top: 428px; width: 55px; height: 38px;"></div>
+            <div data-ki="4" data-ko="4" style="left: 160px; top: 428px; width: 55px; height: 38px;"></div>
+            <div data-ki="4" data-ko="8" style="left: 222px; top: 428px; width: 55px; height: 38px;"></div>
+            <div data-ki="4" data-ko="16" style="left: 285px; top: 428px; width: 55px; height: 38px;"></div>
+            <div data-ki="2" data-ko="1" style="left: 33px; top: 480px; width: 55px; height: 38px;"></div>
+            <div data-ki="2" data-ko="2" style="left: 96.5px; top: 480px; width: 55px; height: 38px;"></div>
+            <div data-ki="2" data-ko="4" style="left: 160px; top: 480px; width: 55px; height: 38px;"></div>
+            <div data-ki="2" data-ko="8" style="left: 222px; top: 480px; width: 55px; height: 38px;"></div>
+            <div data-ki="2" data-ko="16" style="left: 285px; top: 480px; width: 55px; height: 38px;"></div>
+            <div data-ki="1" data-ko="1" style="left: 33px; top: 532px; width: 55px; height: 38px;"></div>
+            <div data-ki="1" data-ko="2" style="left: 96.5px; top: 532px; width: 55px; height: 38px;"></div>
+            <div data-ki="1" data-ko="4" style="left: 160px; top: 532px; width: 55px; height: 38px;"></div>
+            <div data-ki="1" data-ko="8" style="left: 222px; top: 532px; width: 55px; height: 38px;"></div>
+            <div data-ki="1" data-ko="16" style="left: 285px; top: 532px; width: 55px; height: 38px;"></div>
+            <div data-ki="16" data-ko="64" style="left: 33px; top: 584px; width: 55px; height: 38px;"></div>
+            <div data-ki="8" data-ko="64" style="left: 96.5px; top: 584px; width: 55px; height: 38px;"></div>
+            <div data-ki="4" data-ko="64" style="left: 160px; top: 584px; width: 55px; height: 38px;"></div>
+            <div data-ki="2" data-ko="64" style="left: 222px; top: 584px; width: 55px; height: 38px;"></div>
+            <div data-ki="1" data-ko="64" style="left: 285px; top: 584px; width: 55px; height: 38px;"></div>
+        </div>
+        <div id="keypadEY">
+            <div data-ki="0" data-ko="0" style="left: 34px; top: 183px; width: 29px; height: 29px;"></div>
+            <div data-ki="128" data-ko="2" style="left: 84px; top: 183px; width: 36px; height: 36px;"></div>
+            <div data-ki="128" data-ko="8" style="left: 192px; top: 179px; width: 36px; height: 36px;"></div>
+            <div data-ki="64" data-ko="1" style="left: 30px; top: 225px; width: 36px; height: 36px;"></div>
+            <div data-ki="64" data-ko="2" style="left: 84px; top: 225px; width: 36px; height: 36px;"></div>
+            <div data-ki="64" data-ko="4" style="left: 138px; top: 225px; width: 36px; height: 36px;"></div>
+            <div data-ki="64" data-ko="8" style="left: 192px; top: 225px; width: 36px; height: 36px;"></div>
+            <div data-ki="64" data-ko="16" style="left: 246px; top: 225px; width: 36px; height: 36px;"></div>
+            <div data-ki="32" data-ko="8" style="left: 192px; top: 273px; width: 36px; height: 36px;"></div>
+            <div data-ki="128" data-ko="32" style="left: 300px; top: 177px; width: 37px; height: 37px;"></div>
+            <div data-ki="64" data-ko="32" style="left: 300px; top: 224px; width: 37px; height: 37px;"></div>
+            <div data-ki="32" data-ko="1" style="left: 30px; top: 275px; width: 37px; height: 37px;"></div>
+            <div data-ki="32" data-ko="2" style="left: 84px; top: 275px; width: 37px; height: 37px;"></div>
+            <div data-ki="32" data-ko="4" style="left: 138px; top: 275px; width: 37px; height: 37px;"></div>
+            <div data-ki="32" data-ko="16" style="left: 246px; top: 275px; width: 37px; height: 37px;"></div>
+            <div data-ki="32" data-ko="32" style="left: 300px; top: 275px; width: 37px; height: 37px;"></div>
+            <div data-ki="16" data-ko="1" style="left: 30px; top: 322px; width: 37px; height: 37px;"></div>
+            <div data-ki="16" data-ko="2" style="left: 84px; top: 322px; width: 37px; height: 37px;"></div>
+            <div data-ki="16" data-ko="4" style="left: 138px; top: 322px; width: 37px; height: 37px;"></div>
+            <div data-ki="16" data-ko="8" style="left: 192px; top: 322px; width: 37px; height: 37px;"></div>
+            <div data-ki="16" data-ko="16" style="left: 246px; top: 322px; width: 37px; height: 37px;"></div>
+            <div data-ki="16" data-ko="32" style="left: 300px; top: 322px; width: 37px; height: 37px;"></div>
+            <div data-ki="8" data-ko="1" style="left: 30px; top: 368px; width: 37px; height: 37px;"></div>
+            <div data-ki="8" data-ko="2" style="left: 84px; top: 368px; width: 37px; height: 37px;"></div>
+            <div data-ki="8" data-ko="4" style="left: 138px; top: 368px; width: 37px; height: 37px;"></div>
+            <div data-ki="8" data-ko="8" style="left: 192px; top: 368px; width: 37px; height: 37px;"></div>
+            <div data-ki="8" data-ko="16" style="left: 246px; top: 368px; width: 37px; height: 37px;"></div>
+            <div data-ki="8" data-ko="32" style="left: 300px; top: 368px; width: 37px; height: 37px;"></div>
+            <div data-ki="4" data-ko="1" style="left: 27px; top: 418px; width: 47px; height: 47px;"></div>
+            <div data-ki="4" data-ko="2" style="left: 93px; top: 418px; width: 47px; height: 47px;"></div>
+            <div data-ki="4" data-ko="4" style="left: 159px; top: 418px; width: 47px; height: 47px;"></div>
+            <div data-ki="4" data-ko="8" style="left: 225px; top: 418px; width: 47px; height: 47px;"></div>
+            <div data-ki="4" data-ko="16" style="left: 291px; top: 418px; width: 47px; height: 47px;"></div>
+            <div data-ki="2" data-ko="1" style="left: 27px; top: 472px; width: 47px; height: 47px;"></div>
+            <div data-ki="2" data-ko="2" style="left: 93px; top: 472px; width: 47px; height: 47px;"></div>
+            <div data-ki="2" data-ko="4" style="left: 159px; top: 472px; width: 47px; height: 47px;"></div>
+            <div data-ki="2" data-ko="8" style="left: 225px; top: 472px; width: 47px; height: 47px;"></div>
+            <div data-ki="2" data-ko="16" style="left: 291px; top: 472px; width: 47px; height: 47px;"></div>
+            <div data-ki="1" data-ko="1" style="left: 27px; top: 526px; width: 47px; height: 47px;"></div>
+            <div data-ki="1" data-ko="2" style="left: 93px; top: 526px; width: 47px; height: 47px;"></div>
+            <div data-ki="1" data-ko="4" style="left: 159px; top: 526px; width: 47px; height: 47px;"></div>
+            <div data-ki="1" data-ko="8" style="left: 225px; top: 526px; width: 47px; height: 47px;"></div>
+            <div data-ki="1" data-ko="16" style="left: 291px; top: 526px; width: 47px; height: 47px;"></div>
+            <div data-ki="16" data-ko="64" style="left: 27px; top: 580px; width: 47px; height: 47px;"></div>
+            <div data-ki="8" data-ko="64" style="left: 93px; top: 580px; width: 47px; height: 47px;"></div>
+            <div data-ki="4" data-ko="64" style="left: 159px; top: 580px; width: 47px; height: 47px;"></div>
+            <div data-ki="2" data-ko="64" style="left: 225px; top: 580px; width: 47px; height: 47px;"></div>
+            <div data-ki="1" data-ko="64" style="left: 291px; top: 580px; width: 47px; height: 47px;"></div>
+        </div>
+    </div>
+</div>
+<div id="screenshotPreview">
+    <canvas id="screenshotCanvas"></canvas>
+</div>
+<div id="modelList" style="display: none;"></div>
+<dialog id="settingsPanel" style="display: none;">
+    <header>
+        <h2 data-i18n-tag="SettingTitle">SETTINGS</h2>
+        <button id="settingsCloseBtn" class="close"></button>
+    </header>
+    <section>
+        <!-- Default Startup Page Start
+        <div class="group">
+            <h3 data-i18n-tag="SettingDefaultSPTitle">Default Startup Page</h3>
+            <label>
+                <input type="radio" name="startup-page" value="model-selection">
+                <span data-i18n-tag="SettingDefaultSP_MS">Model Selection</span>
+            </label>
+            <label>
+                <input type="radio" name="startup-page" value="last-used-model" checked>
+                <span data-i18n-tag="SettingDefaultSP_LUM">Last Used Model</span>
+            </label>
+        </div>
+        Default Startup Page End -->
+        <div class="group">
+            <h3 data-i18n-tag="SettingSolarITitle">Solar Indicator</h3>
+            <label>
+                <input type="radio" name="solar-indicator" value="off">
+                <span data-i18n-tag="SettingSolarI_Off">Off</span>
+            </label>
+            <label>
+                <input type="radio" name="solar-indicator" value="on">
+                <span data-i18n-tag="SettingSolarI_On">On</span>
+            </label>
+        </div>
+        <div class="group">
+            <h3 data-i18n-tag="SettingScreenSTitle">Screen Shadow</h3>
+            <label>
+                <input type="radio" name="fake-shadow" value="off">
+                <span data-i18n-tag="SettingScreenS_Off">Off</span>
+            </label>
+            <label>
+                <input type="radio" name="fake-shadow" value="on">
+                <span data-i18n-tag="SettingScreenS_On">On</span>
+            </label>
+        </div>
+        <div class="group">
+            <h3 data-i18n-tag="SettingScreenshotSTitle">Screenshot Style</h3>
+            <label>
+                <input type="radio" name="screenshot-style" value="screen-only">
+                <span data-i18n-tag="SettingScreenshotS_SO">Screen Only</span>
+            </label>
+            <label>
+                <input type="radio" name="screenshot-style" value="with-model-body">
+                <span data-i18n-tag="SettingScreenshotS_WMB">With Model Body</span>
+            </label>
+            <div id="screenshotScreenOnly" style="display: none;">
+                <div class="sub-group">
+                    <label><span data-i18n-tag="SettingScreenshotS_SO_Z">Zoom:</span></label><br>
+                    <label><input type="radio" name="screenshot-zoom" value="1"> x1</label>
+                    <label><input type="radio" name="screenshot-zoom" value="2"> x2</label>
+                    <label><input type="radio" name="screenshot-zoom" value="3"> x3</label>
+                    <label><input type="radio" name="screenshot-zoom" value="4"> x4</label>
+                </div>
+                <div class="sub-group">
+                    <label><span data-i18n-tag="SettingScreenshotS_SO_F">Frame:</span></label><br>
+                    <label><input type="radio" name="screenshot-frame" value="off">
+                        <span data-i18n-tag="SettingScreenshotS_SO_F_Off">None</span>
+                    </label>
+                    <label><input type="radio" name="screenshot-frame" value="round-corner">
+                        <span data-i18n-tag="SettingScreenshotS_SO_F_RC">Round Corner</span>
+                    </label>
+                    <label><input type="radio" name="screenshot-frame" value="vertical">
+                        <span data-i18n-tag="SettingScreenshotS_SO_F_V">Vertical</span>
+                    </label>
+                </div>
+                <div class="sub-group">
+                    <label><span data-i18n-tag="SettingScreenshotS_SO_B">Background:</span></label><br>
+                    <label><input type="radio" name="screenshot-background" value="white">
+                        <span data-i18n-tag="SettingScreenshotS_SO_B_W">White</span>
+                    </label><br>
+                    <label><input type="radio" name="screenshot-background" value="depends-on-model">
+                        <span data-i18n-tag="SettingScreenshotS_SO_B_GB">Green for New Model, Blue for Old Model</span>
+                    </label><br>
+                    <label><input type="radio" name="screenshot-background" value="custom">
+                        <span data-i18n-tag="SettingScreenshotS_SO_B_C">Custom</span>
+                    </label>
+                    <label>
+                        <input type="color" name="screenshot-custom-background-color">
+                    </label>
+                </div>
+            </div>
+            <div id="screenshotWithBody" style="display: none;">
+            </div>
+        </div>
+        <div class="group">
+            <h3 data-i18n-tag="SettingScreenshotStgTitle">Screenshot Storage</h3>
+            <label><input type="radio" name="screenshot-storage" value="clipboard">
+                <span data-i18n-tag="SettingScreenshotStg_CC">Copy to Clipboard</span>
+            </label>
+            <label><input type="radio" name="screenshot-storage" value="download">
+                <span data-i18n-tag="SettingScreenshotStg_DF">Download as file</span>
+            </label><br>
+            <label><input type="radio" name="screenshot-storage" value="both">
+                <span data-i18n-tag="SettingScreenshotStg_BA">Both above</span>
+            </label>
+            <p data-i18n-tag="SettingScreenshotStg_NTC">Mobiles Can "Download as file" Only</p>
+        </div>
+        <div class="group">
+            <h3 data-i18n-tag="SettingMenuBISTitle">Menu Bar Icon Size</h3>
+            <label for="menuBarIconSize"></label>
+            <select class="select-full" id="menuBarIconSize" name="menu-bar-icon-size">
+                <option value="16">16px</option>
+                <option value="20">20px</option>
+                <option value="24">24px</option>
+                <option value="28">28px</option>
+            </select>
+        </div>
+        <div class="group">
+            <h3 data-i18n-tag="SettingMenuBICTitle">Menu Bar Icon Customization</h3>
+            <div class="setting-menu-icon-list">
+                <label>
+                    <input type="checkbox" name="menu-bar-icon-cus" value="modelSwitchBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#modelSwitchIcon"/></svg></span>
+                    <span data-i18n-tag="MenuModelS">Model Switch</span>
+                </label>
+            </div>
+            <div class="setting-menu-icon-list">
+                <label><input type="checkbox" name="menu-bar-icon-cus" value="screenshotBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#screenshotIcon"/></svg></span>
+                    <span data-i18n-tag="MenuTakeS">Take Screenshot</span>
+                </label>
+            </div>
+            <div class="setting-menu-icon-list">
+                <label><input type="checkbox" name="menu-bar-icon-cus" value="popupDisplayBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#popupDisplayIcon"/></svg></span>
+                    <span data-i18n-tag="MenuPopupD">Popup Display</span>
+                </label>
+            </div>
+            <div class="setting-menu-icon-list">
+                <label><input type="checkbox" name="menu-bar-icon-cus" value="keyLogBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#keylogIcon"/></svg></span>
+                    <span data-i18n-tag="MenuStartK">Start Keylog</span>
+                </label>
+            </div>
+            <div class="setting-menu-icon-list">
+                <label><input type="checkbox" name="menu-bar-icon-cus" value="autoKeyBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#autoKeyIcon"/></svg></span>
+                    <span data-i18n-tag="MenuAutoPK">Auto Press Key</span>
+                </label>
+            </div>
+            <div class="setting-menu-icon-list">
+                <label><input type="checkbox" name="menu-bar-icon-cus" value="exportQrBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#exportQrIcon"/></svg></span>
+                    <span data-i18n-tag="MenuExportQU">Export QR URL</span>
+                </label>
+            </div>
+            <div class="setting-menu-icon-list">
+                <label><input type="checkbox" name="menu-bar-icon-cus" value="hexEditorBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#hexEditorIcon"/></svg></span>
+                    <span data-i18n-tag="MenuHexE">Hex Editor</span>
+                </label>
+            </div>
+            <div class="setting-menu-icon-list">
+                <label><input type="checkbox" name="menu-bar-icon-cus" value="settingsBtn">
+                    <span><svg class="settings-menu-icon"><use xlink:href="#settingsIcon"/></svg></span>
+                    <span data-i18n-tag="MenuEmulatorS">Emulator Settings</span>
+                </label>
+            </div>
+        </div>
+        <div class="group">
+            <h3 data-i18n-tag="SettingMenuCMTitle">Custom Model</h3>
+            <div class="group button-container">
+                <div class="button" id="customModelAddPanelBtn" data-i18n-tag="SettingMenuCMAdd">Add</div>
+                <div style="display: none;">
+                    <div class="button" id="customModelManegePanel" data-i18n-tag="SettingMenuCMManage">Manage</div>
+                </div>
+            </div>
+        </div>
+        <div class="group">
+            <h3>Language</h3>
+            <label for="selectLanguage"></label>
+            <select class="select-full" id="selectLanguage" name="language">
+                <option selected disabled>Select...</option>
+                <option value="en">English</option>
+                <option value="zh">中文</option>
+                <option value="vi">Tiếng Việt</option>
+            </select>
+        </div>
+        <div class="bottom"></div>
+    </section>
+</dialog>
+<dialog id="autoKeyPanel" style="display: none">
+    <header>
+        <h2 data-i18n-tag="AutoKeyTitle">Auto Key</h2>
+        <button id="autoKeyCloseBtn" class="close"></button>
+    </header>
+    <section>
+        <div class="group button-container flow">
+            <div class="button" id="autoKeySwcKfBtn" data-i18n-tag="AutoKey_KFont">Key Font</div>
+            <div class="button enable" id="autoKeySwcPtBtn" data-i18n-tag="AutoKey_PText">Pure Text</div>
+        </div>
+        <div class="group flow">
+            <div id="autoKeyInputFont" contenteditable="true" style="display: none;"></div>
+            <div id="autoKeyInputText" contenteditable="plaintext-only"></div>
+        </div>
+        <div class="group button-container flow">
+            <div class="button" id="autoKeyPreviewBtn" data-i18n-tag="AutoKey_Prv">Preview</div>
+            <div class="button" id="autoKeyRunBtn" data-i18n-tag="AutoKey_Run">Run</div>
+        </div>
+        <div class="group flow">
+            <div id="autoKeyPreview"></div>
+        </div>
+    </section>
+</dialog>
+<dialog id="keylogPanel" style="display: none;">
+    <header>
+        <h2 data-i18n-tag="KeylogTitle">Keylog</h2>
+        <button id="keylogCloseBtn" class="close"></button>
+    </header>
+    <section>
+        <div class="group button-container flow">
+            <div class="button" id="keylogSizeEnlargeBtn" data-val="0.2">A<sup>+</sup></div>
+            <div class="button" id="keylogSizeReduceBtn" data-val="-0.2">A<sup>-</sup></div>
+            <div class="button" id="keylogCopyBtn" data-i18n-tag="KeylogCopy">Copy</div>
+        </div>
+        <div class="group flow">
+            <div id="keylogPreview" contenteditable="true" data-font-size="1.4"></div>
+            <span id="keylogTimes" style="display: none;" data-i18n-tag="KeylogTimes">times</span>
+        </div>
+        <div class="group button-container">
+            <div class="button" id="keylogOptBtn" data-i18n-tag="KeylogOpt">Optimize</div>
+            <div class="button" id="keylogResetBtn" data-i18n-tag="KeylogRst">Reset</div>
+            <div class="button" id="keylogReplayBtn" data-i18n-tag="KeylogRpl">Replay</div>
+        </div>
+        <div class="group button-container flow">
+            <div class="button stop" id="keylogStopBtn" data-i18n-tag="KeylogStop">Stop</div>
+            <div class="button clear" id="keylogClearBtn" data-i18n-tag="KeylogClr">Clear</div>
+            <div class="button close" id="keylogCloseBtnLower" data-i18n-tag="KeylogCls">Close</div>
+        </div>
+    </section>
+</dialog>
+<dialog id="hexEditorPanel" style="display: none;">
+    <header>
+        <h2 data-i18n-tag="HexEditorTitle">Hex Editor</h2>
+        <button id="hexEditorCloseBtn" class="close"></button>
+    </header>
+    <section>
+        <div class="group button-container">
+            <div class="button" id="hexEditorRamBtn">RAM</div>
+            <div class="button" id="hexEditorRomBtn">ROM</div>
+        </div>
+        <div class="group">
+            <div class="sub-group" data-i18n-tag="HexEditor_Note">
+                Note: May not work on mobile devices
+            </div>
+        </div>
+    </section>
+</dialog>
+<dialog id="customModelPanel" style="display: none;">
+    <header>
+        <h2 data-i18n-tag="CustomModelTitle">Add Custom Model</h2>
+        <button id="customModelCloseBtn" class="close"></button>
+    </header>
+    <section>
+        <div class="group">
+            <div>
+                <h3 data-i18n-tag="CustomModelInputModelId">Model ID (CY***/EY***)</h3>
+            </div>
+            <div class="sub-group">
+                <label for="customModelInputModelId"></label>
+                <input id="customModelInputModelId" type="text">
+            </div>
+            <div>
+                <h3 data-i18n-tag="CustomModelInputModelName">Model Name (fx-***)</h3>
+            </div>
+            <div class="sub-group">
+                <label for="customModelInputModelName"></label>
+                <input id="customModelInputModelName" type="text">
+            </div>
+            <div>
+                <h3 data-i18n-tag="CustomModelInputFiles">ROM, face.svg and keylog.json files</h3>
+            </div>
+            <div class="sub-group">
+                <input id="customModelInputFiles" multiple="multiple" type="file" accept=".bin,.dat,.svg,.json">
+            </div>
+        </div>
+        <div class="group button-container">
+            <div class="button" id="customModelAddBtn" data-i18n-tag="CustomModelAdd">Add</div>
+        </div>
+        <div class="group">
+        </div>
+        <hr>
+        <div class="group">
+            <h3>Help</h3>
+            <div class="sub-group">To be continue......</div>
+        </div>
+    </section>
+</dialog>
+<div id="i18nCustomModel" style="display: none;">
+    <span id="CustomModelListTitle" data-i18n-tag="CustomModelListTitle">Custom</span>
+    <span id="CustomModelAddFileNotMatch" data-i18n-tag="CustomModelAddFileNotMatch">Please select 3 files. See the help below for more info.</span>
+    <span id="CustomModelAddSuccess" data-i18n-tag="CustomModelAddSuccess">Success</span>
+    <span id="CustomModelNoModelTip01" data-i18n-tag="CustomModelNoModelTip01">No emulators yet, </span>
+    <span id="CustomModelNoModelTip02" data-i18n-tag="CustomModelNoModelTip02">create a custom one</span>
+    <span id="CustomModelNoModelTip03" data-i18n-tag="CustomModelNoModelTip03">. You can create more in the Settings panel later.</span>
+</div>
+<div id="i18nModelList" style="display: none;">
+    <span data-i18n-tag="ModelListTitle" id="ModelListTitle">Model List</span>
+    <span data-i18n-tag="ModelListRecent" id="ModelListRecent">Recent</span>
+    <span data-i18n-tag="ModelListTemp" id="ModelListTemp">Temp</span>
+    <span data-i18n-tag="ModelListCustom" id="ModelListCustom">Custom Model</span>
+    <span data-i18n-tag="ModelListNew" id="ModelListNew">New...</span>
+    <span data-i18n-tag="ModelListEnterNRN" id="ModelListEnterNRN">Enter New RAM Name: </span>
+</div>
+<div id="i18nQRPopUp" style="display: none;">
+    <span data-i18n-tag="QRPopUpNoQRC" id="QRPopUpNoQRC">No QR Code</span>
+    <span data-i18n-tag="QRPopUpCopiedTC" id="QRPopUpCopiedTC">Copied to Clipboard.&nbsp;</span>
+    <span data-i18n-tag="QRPopUpConfirmTOINT" id="QRPopUpConfirmTOINT">Confirm to Open in New Tab.</span>
+</div>
+<div class="menu" id="menu">
+    <ul class="menu-list">
+        <li class="menu-item" id="menuModelSwitchBtn">
+            <span><svg class="menu-icon"><use xlink:href="#modelSwitchIcon"/></svg></span>
+            <span data-i18n-tag="MenuModelS">Model Switch</span>
+        </li>
+        <li class="menu-item" id="menuScreenshotBtn">
+            <span><svg class="menu-icon"><use xlink:href="#screenshotIcon"/></svg></span>
+            <span data-i18n-tag="MenuTakeS">Take Screenshot</span>
+        </li>
+        <li class="menu-item" id="menuPopupDisplayBtn">
+            <span><svg class="menu-icon"><use xlink:href="#popupDisplayIcon"/></svg></span>
+            <span data-i18n-tag="MenuPopupD">Popup Display</span>
+        </li>
+        <li class="menu-item" id="menuKeylogBtn">
+            <span><svg class="menu-icon"><use xlink:href="#keylogIcon"/></svg></span>
+            <span data-i18n-tag="MenuStartK">Start Keylog</span>
+        </li>
+        <li class="menu-item" id="menuAutoKeyBtn">
+            <span><svg class="menu-icon"><use xlink:href="#autoKeyIcon"/></svg></span>
+            <span data-i18n-tag="MenuAutoPK">Auto Press Key</span>
+        </li>
+        <li class="menu-item" id="menuExportQrBtn">
+            <span><svg class="menu-icon"><use xlink:href="#exportQrIcon"/></svg></span>
+            <span data-i18n-tag="MenuExportQU">Export QR URL</span>
+        </li>
+        <li class="menu-item" id="menuHexEditorBtn">
+            <span><svg class="menu-icon"><use xlink:href="#hexEditorIcon"/></svg></span>
+            <span data-i18n-tag="MenuHexE">Hex Editor</span>
+        </li>
+        <li class="menu-item" id="menuSettingBtn">
+            <span><svg class="menu-icon"><use xlink:href="#settingsIcon"/></svg></span>
+            <span data-i18n-tag="MenuEmulatorS">Emulator Settings</span>
+        </li>
+    </ul>
+    <div class="menu-info">
+        Made With ♥ on <a href="https://github.com/CalcWorld/Web-Calc-Emulator" target="_blank">GitHub</a>
+        <br>
+        <span id="build"></span>
+    </div>
+</div>
+<div class="menu-container" id="menuContainer">
+</div>
+<div id="hud" style="display: none;">
+    <a id="menuBtn" title="Open Menu" href="javascript:void(0);">
+        <span><svg class="hud-icon" viewBox="0 0 24 24" stroke-width="1.44" stroke="#000000" fill="none"><g stroke="null" fill="#a8aaac"><path d="M16.549 1.156H7.462c-3.947 0-6.3 2.353-6.3 6.3v9.077c0 3.958 2.353 6.311 6.3 6.311h9.077c3.947 0 6.3-2.353 6.3-6.3V7.456c.011-3.947-2.342-6.3-6.29-6.3z" opacity=".8"/><use xlink:href="#MenuB"/><use xlink:href="#MenuB" y="5"/><use xlink:href="#MenuB" y="9.76"/></g><defs><path id="MenuB" d="M17.427 7.933H6.583a.82.82 0 0 1-.813-.813.82.82 0 0 1 .813-.813h10.844a.82.82 0 0 1 .813.813.82.82 0 0 1-.813.813z"/></defs></svg></span>
+    </a>
+    <input id="infoOutput" readonly value="No error handling; use inspector">
+    <a id="stopIntervalPressKeyBtn" title="Stop Auto Press Key" href="javascript:" style="display: none;">
+        <span>
+            <svg style="display: none;"><symbol id="stopIntervalPressKeyIcon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#f00" stroke-width="2"/><rect x="5.5" y="5.5" width="9" height="9" rx="2" fill="#f00"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#stopIntervalPressKeyIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="modelSwitchBtn" title="Change model" href="javascript:" style="display: none;">
+        <span>
+            <svg style="display: none;"><symbol id="modelSwitchIcon" fill="#000" viewBox="0 0 16 16"><path d="M7 12v-2l-4 3 4 3v-2h2.997A6.006 6.006 0 0 0 16 8h-2a4 4 0 0 1-3.996 4H7zM9 2H6.003A6.006 6.006 0 0 0 0 8h2a4 4 0 0 1 3.996-4H9v2l4-3-4-3v2z" fill-rule="evenodd"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#modelSwitchIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="screenshotBtn" title="Get current screenshot" href="javascript:">
+        <span>
+            <svg style="display: none;"><symbol id="screenshotIcon" viewBox="0 0 1920 1920" stroke-width="105.6" stroke="#000000" fill="#000000"><path stroke="null" d="M262.5 1297.501v292.502c0 37.28 30.221 67.493 67.5 67.493h292.5V1792.5H330c-111.838 0-202.5-90.664-202.5-202.497v-292.502h135zm1530 0v292.502c0 111.833-90.664 202.497-202.497 202.497h-292.502v-135.004h292.502c37.28 0 67.493-30.213 67.493-67.493v-292.502H1792.5zM960 600c198.82 0 360.004 161.177 360.004 360S1158.82 1320.004 960 1320.004 600 1158.82 600 960s161.177-360 360-360zm630.003-472.5c111.833 0 202.497 90.663 202.497 202.5v292.5h-135.004V330c0-37.28-30.213-67.5-67.493-67.5h-292.502v-135h292.502zm-967.503 0v135H330c-37.28 0-67.5 30.221-67.5 67.5v292.5h-135V330c0-111.838 90.663-202.5 202.5-202.5h292.5z"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#screenshotIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="popupDisplayBtn" title="Popup Screen Display" href="javascript:" style="display: none;">
+        <span>
+            <svg style="display:none;"><symbol id="popupDisplayIcon" fill="#000000" viewBox="0 0 20 20" stroke="#000000" stroke-width="0.3"><path d="M16 2H7.979C6.88 2 6 2.88 6 3.98V12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 10H8V4h8v8zM4 10H2v6c0 1.1.9 2 2 2h6v-2H4v-6z"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#popupDisplayIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="keyLogBtn" title="Start Keylog" href="javascript:">
+        <span>
+            <svg style="display: none;"><symbol id="keylogIcon" viewBox="0 0 256 256" stroke-width=".003" stroke="#000000" fill="#000000"><path stroke="null" d="M231.346 37.113H24.654A22.19 22.19 0 0 0 2.489 59.278v137.444a22.19 22.19 0 0 0 22.165 22.165h206.692a22.19 22.19 0 0 0 22.165-22.165V59.278a22.19 22.19 0 0 0-22.165-22.165zm-3.803 155.807H28.457V63.081h199.086v129.839zM45.769 128a12.984 12.984 0 0 1 12.984-12.984h138.495a12.984 12.984 0 0 1 0 25.968H58.753A12.984 12.984 0 0 1 45.769 128zm0-38.952a12.984 12.984 0 0 1 12.984-12.984h138.495a12.984 12.984 0 0 1 0 25.968H58.753a12.984 12.984 0 0 1-12.984-12.984zm0 77.903a12.984 12.984 0 0 1 12.984-12.984h8.656a12.984 12.984 0 0 1 0 25.968h-8.656a12.984 12.984 0 0 1-12.984-12.984zm116.855 0a12.984 12.984 0 0 1-12.984 12.984h-43.28a12.984 12.984 0 0 1 0-25.968h43.28a12.984 12.984 0 0 1 12.984 12.984zm47.608 0a12.984 12.984 0 0 1-12.984 12.984h-8.656a12.984 12.984 0 0 1 0-25.968h8.656a12.984 12.984 0 0 1 12.984 12.984z"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#keylogIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="autoKeyBtn" title="Auto Press Key" href="javascript:" style="display: none;">
+        <span>
+            <svg style="display: none;"><symbol id="autoKeyIcon" viewBox="0 0 19.6 19.6"><rect x="1" y="1" width="16.6" height="16.6" rx="2" fill="none" stroke="#000" stroke-width="2"/><path d="M14.66 14.5H12.3l-.94-2.44H7.07l-.89 2.44h-2.3L8.07 3.76h2.29zm-4-4.25L9.19 6.3l-1.45 4z"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#autoKeyIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="hexEditorBtn" title="" href="javascript:">
+        <span>
+            <svg style="display: none;"><symbol id="hexEditorIcon" viewBox="0 0 685.1 779" stroke="#000"><path d="M342.5 769.5a29.9 29.9 0 0 1-14.9-3.9L24 590.1a29.1 29.1 0 0 1-14.5-25.5V214.3A29.1 29.1 0 0 1 24 188.8L327.6 13.3a30.3 30.3 0 0 1 29.4 0l303.6 175.5a28.6 28.6 0 0 1 14.9 25.5v350.3a28.6 28.6 0 0 1-14.9 25.5L357 765.6a27.5 27.5 0 0 1-14.5 3.9zM68.2 546.2l274.3 156.7 274.3-156.7V232.7L342.5 76 68.2 232.7z" stroke-miterlimit="10" stroke-width="19"/><path d="M198.6 582.3V224.4h72.2v140.9h141.6V224.4h72.3v357.9h-72.3V425.8H270.8v156.5z" stroke-miterlimit="16.66666603088379" stroke-width="22"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#hexEditorIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="exportQrBtn" title="Export QR URL" href="javascript:">
+        <span>
+            <svg style="display: none;"><symbol id="exportQrIcon" fill="#000000" viewBox="0 0 512 512"><path stroke="null" fill-rule="evenodd" d="M490.5 203.903v286.61H203.888l.018-104.222h52.09l-.018 52.112h182.431v-182.39h-26.076v-.026h-26.042v-52.085H490.5zM73.612 386.292v52.131h78.167v52.091H21.5V386.292h52.112zm312.667-78.167v78.167h-78.167v-78.167h78.167zM334.167 21.513v234.474h-52.112V73.625H73.612V282.07H256v52.11H21.5V21.513h312.667zM229.945 125.735v104.222H125.723V125.735h104.222zM386.278 21.487l104.222.027V125.71l-52.096-.026V73.599h-52.126V21.488v-.001z"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#exportQrIcon"/></svg>
+        </span>
+    </a>
+    <a class="hud-btn" id="settingsBtn" title="Settings" href="javascript:">
+        <span>
+            <svg style="display: none"><symbol id="settingsIcon" fill="none" stroke="#000" stroke-width=".864" viewBox="0 0 24 24"><g fill="#000" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 9.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM8.25 12a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0Z"/><path d="M9.603 3.77a.919.919 0 0 0-1.25-.335l-.01.006-1.73.99a1.15 1.15 0 0 0-.424 1.564l-.649.375.649-.376c.535.923.679 1.935.2 2.764-.477.83-1.424 1.212-2.489 1.212-.633 0-1.15.522-1.15 1.15v1.76c0 .628.517 1.15 1.15 1.15 1.065 0 2.012.383 2.49 1.212.478.83.334 1.84-.2 2.764a1.149 1.149 0 0 0 .422 1.563l1.742.996a.919.919 0 0 0 1.25-.335l.107-.186c.535-.923 1.341-1.552 2.298-1.552.957 0 1.761.63 2.291 1.554v.001l.106.183a.92.92 0 0 0 1.25.335l.011-.006 1.73-.99a1.147 1.147 0 0 0 .423-1.565c-.534-.923-.677-1.934-.2-2.762.478-.83 1.425-1.212 2.49-1.212.633 0 1.15-.522 1.15-1.15v-1.76c0-.633-.522-1.15-1.15-1.15-1.065 0-2.012-.382-2.49-1.212-.478-.829-.334-1.84.2-2.764a1.15 1.15 0 0 0-.422-1.563l-1.742-.996a.919.919 0 0 0-1.25.335l-.107.186c-.535.923-1.341 1.552-2.298 1.552-.957 0-1.76-.63-2.29-1.553l-.002-.002-.106-.183Zm-2.01-1.628c1.159-.685 2.63-.265 3.302.865l.004.007.11.19.002.003c.37.645.756.8.99.8.236 0 .625-.156 1-.803l.114-.197c.672-1.13 2.143-1.55 3.303-.865l1.724.987a2.65 2.65 0 0 1 .977 3.616v.001c-.375.647-.316 1.06-.2 1.263.118.203.446.461 1.191.461a2.656 2.656 0 0 1 2.65 2.65v1.76a2.656 2.656 0 0 1-2.65 2.65c-.745 0-1.073.258-1.19.46-.117.204-.176.617.199 1.264l.002.004a2.647 2.647 0 0 1-.979 3.613l-1.725.987c-1.159.685-2.63.265-3.302-.864l-.004-.008-.11-.19-.002-.003c-.37-.645-.756-.8-.99-.8-.236 0-.625.156-1 .803l-.114.198c-.672 1.129-2.143 1.55-3.302.864l-1.725-.987a2.65 2.65 0 0 1-.977-3.616v-.001c.375-.647.316-1.06.2-1.263-.118-.204-.446-.461-1.191-.461a2.656 2.656 0 0 1-2.65-2.65v-1.76A2.656 2.656 0 0 1 3.9 8.47c.745 0 1.073-.258 1.19-.46.117-.204.176-.617-.199-1.264a2.649 2.649 0 0 1 .976-3.617l1.725-.987Z"/></g></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#settingsIcon"/></svg>
+        </span>
+    </a>
+</div>
+<script src="./lib/localforage.min.js"></script>
+<script type="module">
+  const isMobile = () => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  }
+
+  const i18nResource = () => {
+    const i18n_en = {
+      "SettingTitle": "SETTINGS",
+      "SettingDefaultSPTitle": "Default Startup Page",
+      "SettingDefaultSP_MS": "Model Selection",
+      "SettingDefaultSP_LUM": "Last Used Model",
+      "SettingSolarITitle": "Solar Indicator",
+      "SettingSolarI_Off": "Off",
+      "SettingSolarI_On": "On",
+      "SettingScreenSTitle": "Screen Shadow",
+      "SettingScreenS_Off": "Off",
+      "SettingScreenS_On": "On",
+      "SettingScreenshotSTitle": "Screenshot Style",
+      "SettingScreenshotS_SO": "Screen Only",
+      "SettingScreenshotS_WMB": "With Model Body",
+      "SettingScreenshotS_SO_Z": "Zoom:",
+      "SettingScreenshotS_SO_F": "Frame:",
+      "SettingScreenshotS_SO_F_Off": "None",
+      "SettingScreenshotS_SO_F_RC": "Round Corner",
+      "SettingScreenshotS_SO_F_V": "Vertical",
+      "SettingScreenshotS_SO_B": "Background:",
+      "SettingScreenshotS_SO_B_W": "White",
+      "SettingScreenshotS_SO_B_GB": "Green for New Model, Blue for Old Model",
+      "SettingScreenshotS_SO_B_C": "Custom",
+      "SettingScreenshotStgTitle": "Screenshot Storage",
+      "SettingScreenshotStg_CC": "Copy to Clipboard",
+      "SettingScreenshotStg_DF": "Download as file",
+      "SettingScreenshotStg_BA": "Both above",
+      "SettingScreenshotStg_NTC": "Mobiles Can \"Download as file\" Only",
+      "SettingMenuBISTitle": "Menu Bar Icon Size",
+      "SettingMenuBICTitle": "Menu Bar Icon Customization",
+      "MenuModelS": "Model Switch",
+      "MenuTakeS": "Take Screenshot",
+      "MenuPopupD": "Popup Display",
+      "MenuStartK": "Start Keylog",
+      "MenuAutoPK": "Auto Press Key",
+      "MenuExportQU": "Export QR URL",
+      "MenuHexE": "Hex Editor",
+      "MenuEmulatorS": "Emulator Settings",
+      "SettingMenuCMTitle": "Custom Model",
+      "SettingMenuCMAdd": "Add",
+      "SettingMenuCMManage": "Manage",
+      "AutoKeyTitle": "Auto Key",
+      "AutoKey_KFont": "Key Font",
+      "AutoKey_PText": "Pure Text",
+      "AutoKey_Prv": "Preview",
+      "AutoKey_Run": "Run",
+      "KeylogTitle": "Keylog",
+      "KeylogCopy": "Copy",
+      "KeylogTimes": "times",
+      "KeylogOpt": "Optimize",
+      "KeylogRst": "Reset",
+      "KeylogRpl": "Replay",
+      "KeylogStop": "Stop",
+      "KeylogClr": "Clear",
+      "KeylogCls": "Close",
+      "HexEditorTitle": "Hex Editor",
+      "HexEditor_Note": "Note: May not work on mobile devices",
+      "CustomModelTitle": "Add Custom Model",
+      "CustomModelInputModelId": "Model ID (CY***/EY***)",
+      "CustomModelInputModelName": "Model Name (fx-***)",
+      "CustomModelInputFiles": "ROM, face.svg and keylog.json files",
+      "CustomModelAdd": "Add",
+      "CustomModelListTitle": "Custom",
+      "CustomModelAddFileNotMatch": "Please select 3 files. See the help below for more info.",
+      "CustomModelAddSuccess": "Success",
+      "CustomModelNoModelTip01": "No emulators yet, ",
+      "CustomModelNoModelTip02": "create a custom one",
+      "CustomModelNoModelTip03": ". You can create more in the Settings panel later.",
+      "ModelListTitle": "Model List",
+      "ModelListRecent": "Recent",
+      "ModelListTemp": "Temp",
+      "ModelListCustom": "Custom Model",
+      "ModelListNew": "New...",
+      "ModelListEnterNRN": "Enter New RAM Name: ",
+      "QRPopUpNoQRC": "No QR Code",
+      "QRPopUpCopiedTC": "Copied to Clipboard. ",
+      "QRPopUpConfirmTOINT": "Confirm to Open in New Tab.",
+    }
+
+    const i18n_zh = {
+      "SettingTitle": "设置",
+      "SettingDefaultSPTitle": "默认启动画面",
+      "SettingDefaultSP_MS": "型号选择列表",
+      "SettingDefaultSP_LUM": "上次所使用的型号",
+      "SettingSolarITitle": "太阳能灯",
+      "SettingSolarI_Off": "关闭",
+      "SettingSolarI_On": "开启",
+      "SettingScreenSTitle": "屏幕阴影",
+      "SettingScreenS_Off": "关闭",
+      "SettingScreenS_On": "开启",
+      "SettingScreenshotSTitle": "截屏样式",
+      "SettingScreenshotS_SO": "仅截取屏幕",
+      "SettingScreenshotS_WMB": "实机渲染图",
+      "SettingScreenshotS_SO_Z": "缩放倍数：",
+      "SettingScreenshotS_SO_F": "边框样式：",
+      "SettingScreenshotS_SO_F_Off": "无",
+      "SettingScreenshotS_SO_F_RC": "圆角",
+      "SettingScreenshotS_SO_F_V": "直角",
+      "SettingScreenshotS_SO_B": "背景颜色：",
+      "SettingScreenshotS_SO_B_W": "白色",
+      "SettingScreenshotS_SO_B_GB": "CW I蓝色，CW II绿色",
+      "SettingScreenshotS_SO_B_C": "自定义",
+      "SettingScreenshotStgTitle": "截屏存储方式",
+      "SettingScreenshotStg_CC": "复制到剪贴板",
+      "SettingScreenshotStg_DF": "作为文件下载",
+      "SettingScreenshotStg_BA": "复制并下载",
+      "SettingScreenshotStg_NTC": "*移动设备只支持下载",
+      "SettingMenuBISTitle": "菜单栏图标大小",
+      "SettingMenuBICTitle": "菜单栏图标自定义",
+      "MenuModelS": "切换型号",
+      "MenuTakeS": "屏幕截取",
+      "MenuPopupD": "独立屏显",
+      "MenuStartK": "按键记录",
+      "MenuAutoPK": "自动按键",
+      "MenuExportQU": "导出 QR URL",
+      "MenuHexE": "16进制编辑器",
+      "MenuEmulatorS": "模拟器设置",
+      "SettingMenuCMTitle": "自建型号",
+      "SettingMenuCMAdd": "添加",
+      "SettingMenuCMManage": "管理",
+      "AutoKeyTitle": "自动模拟按键",
+      "AutoKey_KFont": "按键字体",
+      "AutoKey_PText": "纯文本",
+      "AutoKey_Prv": "预览",
+      "AutoKey_Run": "运行",
+      "KeylogTitle": "按键记录",
+      "KeylogCopy": "复制",
+      "KeylogTimes": "次",
+      "KeylogOpt": "优化",
+      "KeylogRst": "还原",
+      "KeylogRpl": "重播",
+      "KeylogStop": "停止记录",
+      "KeylogClr": "清除按键",
+      "KeylogCls": "关闭",
+      "HexEditorTitle": "16进制编辑器",
+      "HexEditor_Note": "注：移动设备上可能无法正常使用",
+      "CustomModelTitle": "添加自建型号",
+      "CustomModelInputModelId": "型号ID (CY***或EY***)",
+      "CustomModelInputModelName": "型号名称 (fx-***)",
+      "CustomModelInputFiles": "ROM, face.svg 和 keylog.json 文件",
+      "CustomModelAdd": "添加",
+      "CustomModelListTitle": "自建",
+      "CustomModelAddFileNotMatch": "请选择上述所示的3个文件，参阅下面的帮助信息了解更多",
+      "CustomModelAddSuccess": "添加成功",
+      "CustomModelNoModelTip01": "还没有模拟器，",
+      "CustomModelNoModelTip02": "创建自建型号",
+      "CustomModelNoModelTip03": "。稍后可在设置面板创建更多。",
+      "ModelListTitle": "型号一览",
+      "ModelListRecent": "最近使用",
+      "ModelListTemp": "临时",
+      "ModelListCustom": "自建型号",
+      "ModelListNew": "新建...",
+      "ModelListEnterNRN": "新建 RAM 名称：",
+      "QRPopUpNoQRC": "QR 码未显示",
+      "QRPopUpCopiedTC": "已复制到剪贴板，",
+      "QRPopUpConfirmTOINT": "按确定在新标签页打开",
+    }
+
+    const i18n_vi = {
+      "SettingTitle": "CÀI ĐẶT",
+      "SettingDefaultSPTitle": "Trang khởi động mặc định",
+      "SettingDefaultSP_MS": "Trang chọn model",
+      "SettingDefaultSP_LUM": "Model được dùng lần cuối",
+      "SettingSolarITitle": "Chỉ báo năng lượng mặt trời",
+      "SettingSolarI_Off": "Tắt",
+      "SettingSolarI_On": "Bật",
+      "SettingScreenSTitle": "Bóng màn hình",
+      "SettingScreenS_Off": "Tắt",
+      "SettingScreenS_On": "Bật",
+      "SettingScreenshotSTitle": "Kiểu ảnh chụp màn hình",
+      "SettingScreenshotS_SO": "Chỉ màn hình",
+      "SettingScreenshotS_WMB": "Với thân model",
+      "SettingScreenshotS_SO_Z": "Độ phóng to:",
+      "SettingScreenshotS_SO_F": "Khung:",
+      "SettingScreenshotS_SO_F_Off": "Tắt",
+      "SettingScreenshotS_SO_F_RC": "Góc tròn",
+      "SettingScreenshotS_SO_F_V": "Thẳng",
+      "SettingScreenshotS_SO_B": "Nền:",
+      "SettingScreenshotS_SO_B_W": "Trắng",
+      "SettingScreenshotS_SO_B_GB": "Xanh lá cho model mới, xanh dương cho model cũ",
+      "SettingScreenshotS_SO_B_C": "Tuỳ chỉnh",
+      "SettingScreenshotStgTitle": "Lưu trữ ảnh chụp màn hình",
+      "SettingScreenshotStg_CC": "Sao chép vào bảng nhớ tạm",
+      "SettingScreenshotStg_DF": "Tải tệp",
+      "SettingScreenshotStg_BA": "Cả hai",
+      "SettingScreenshotStg_NTC": "* Máy di động chỉ tải tệp",
+      "SettingMenuBISTitle": "Kích thước biểu tượng thanh menu",
+      "SettingMenuBICTitle": "Tuỳ chỉnh biểu tượng thanh menu",
+      "MenuModelS": "Đổi model",
+      "MenuTakeS": "Chụp màn hình",
+      "MenuPopupD": "Cửa sổ bật",
+      "MenuStartK": "Mở Keylog",
+      "MenuAutoPK": "Tự động nhấn phím",
+      "MenuExportQU": "Xuất URL mã QR",
+      "MenuHexE": "Trình soạn thảo hex",
+      "MenuEmulatorS": "Cài đặt giả lập",
+      "SettingMenuCMTitle": "Custom Model",
+      "SettingMenuCMAdd": "Add",
+      "SettingMenuCMManage": "Manage",
+      "AutoKeyTitle": "Tự động nhấn phím",
+      "AutoKey_KFont": "Phông bàn phím",
+      "AutoKey_PText": "Chữ thường",
+      "AutoKey_Prv": "Xem trước",
+      "AutoKey_Run": "Chạy",
+      "KeylogTitle": "Keylog",
+      "KeylogCopy": "Sao chép",
+      "KeylogTimes": "lần",
+      "KeylogOpt": "Tối ưu hoá",
+      "KeylogRst": "Đặt lại",
+      "KeylogRpl": "Chạy lại",
+      "KeylogStop": "Dừng",
+      "KeylogClr": "Xoá",
+      "KeylogCls": "Đóng",
+      "HexEditorTitle": "Trình soạn thảo hex",
+      "HexEditor_Note": "Lưu ý: có thể không hoạt dộng trên máy di động",
+      "CustomModelTitle": "Add Custom Model",
+      "CustomModelInputModelId": "Model ID (CY***/EY***)",
+      "CustomModelInputModelName": "Model Name (fx-***)",
+      "CustomModelInputFiles": "ROM, face.svg and keylog.json files",
+      "CustomModelAdd": "Add",
+      "CustomModelListTitle": "Custom",
+      "CustomModelAddFileNotMatch": "Please select 3 files. See the help below for more info.",
+      "CustomModelAddSuccess": "Success",
+      "CustomModelNoModelTip01": "No emulators yet, ",
+      "CustomModelNoModelTip02": "create a custom one",
+      "CustomModelNoModelTip03": ". You can create more in the Settings panel later.",
+      "ModelListTitle": "Danh sách model",
+      "ModelListRecent": "Gần đây",
+      "ModelListTemp": "RAM tạm thời - Temp",
+      "ModelListCustom": "Custom Model",
+      "ModelListNew": "Mới...",
+      "ModelListEnterNRN": "Nhập tên RAM mới: ",
+      "QRPopUpNoQRC": "Không có mã QR",
+      "QRPopUpCopiedTC": "Đã sao chép vào bảng nhớ tạm. ",
+      "QRPopUpConfirmTOINT": "Xác nhận để mở trong tab mới.",
+    }
+
+    const i18nLang = {
+      'en': i18n_en,
+      'zh': i18n_zh,
+      'vi': i18n_vi,
+    }
+
+    const langKey = emuSetting.getSettingValue('language');
+    return i18nLang[langKey] ? [langKey, i18nLang[langKey]] : ['en', []];
+  }
+
+  const i18n = () => {
+    const [langKey, i18nData] = i18nResource();
+    document.getElementsByTagName('html')[0].setAttribute('lang', langKey);
+    if (i18nData.length === 0) {
+      return;
+    }
+
+    const i18n_elements = document.querySelectorAll('[data-i18n-tag]');
+    i18n_elements.forEach(element => {
+      const tag = element.getAttribute('data-i18n-tag');
+      if (i18nData[tag]) {
+        element.innerText = i18nData[tag];
+      }
+    });
+
+  }
+
+  class EmuSettings {
+    constructor() {
+      this.settings = {
+        startupPage: {
+          className: 'startup-page',
+          storageKey: 'startupPage',
+          defaultValue: 'last-used-model',
+        },
+        displayShadow: {
+          className: 'fake-shadow',
+          storageKey: 'displayShadow',
+          defaultValue: 'on',
+        },
+        solarIndicator: {
+          className: 'solar-indicator',
+          storageKey: 'solarIndicator',
+          defaultValue: 'on',
+        },
+        screenshotStyle: {
+          className: 'screenshot-style',
+          storageKey: 'screenshotStyle',
+          defaultValue: 'screen-only',
+        },
+        screenshotZoom: {
+          className: 'screenshot-zoom',
+          storageKey: 'screenshotZoom',
+          defaultValue: '2',
+        },
+        screenshotFrame: {
+          className: 'screenshot-frame',
+          storageKey: 'screenshotFrame',
+          defaultValue: 'round-corner',
+        },
+        screenshotBackground: {
+          className: 'screenshot-background',
+          storageKey: 'screenshotBackground',
+          defaultValue: 'depends-on-model',
+        },
+        screenshotCustomBackgroundColor: {
+          className: 'screenshot-custom-background-color',
+          storageKey: 'screenshotCustomBackgroundColor',
+          defaultValue: '#ffffff',
+        },
+        screenshotStorage: {
+          className: 'screenshot-storage',
+          storageKey: 'screenshotStorage',
+          defaultValue: 'both',
+        },
+        menuBarIconSize: {
+          className: 'menu-bar-icon-size',
+          storageKey: 'menuBarIconSize',
+          defaultValue: '20',
+        },
+        menuBarIconCus: {
+          className: 'menu-bar-icon-cus',
+          storageKey: 'menuBarIconCus',
+          defaultValue: JSON.stringify(['screenshotBtn', 'keyLogBtn', 'exportQrBtn', 'settingsBtn']),
+        },
+        language: {
+          className: 'language',
+          storageKey: 'language',
+          defaultValue: (navigator.language || navigator.userLanguage || 'en').split('-')[0],
+        },
+      }
+    }
+
+    initPanel() {
+      Object.keys(this.settings).forEach(key => {
+        const setting = this.settings[key];
+        const radios = document.getElementsByName(setting.className);
+        let value = localStorage.getItem(setting.storageKey)
+        if (!value) {
+          localStorage.setItem(setting.storageKey, setting.defaultValue)
+          value = setting.defaultValue
+        }
+        if (key === 'screenshotStyle') {
+          if (value === 'screen-only') {
+            screenshotScreenOnly.style.display = 'block';
+            screenshotWithBody.style.display = 'none';
+          } else {
+            screenshotScreenOnly.style.display = 'none';
+            screenshotWithBody.style.display = 'block';
+          }
+        }
+        for (let i = 0; i < radios.length; i++) {
+          if (key === 'screenshotCustomBackgroundColor') {
+            radios[i].value = value
+            break
+          }
+          if (radios[i].value === value) {
+            radios[i].checked = true;
+          }
+        }
+        if (key === 'menuBarIconSize') {
+          menuBarIconSize.value = value
+        }
+        if (key === 'menuBarIconCus') {
+          JSON.parse(value).forEach(item => {
+            const el = document.querySelector(`input[value=${item}]`);
+            if (el) {
+              el.checked = true;
+            }
+          })
+        }
+        if (key === 'language') {
+          selectLanguage.value = value
+        }
+      })
+    }
+
+    onSettingChange() {
+      Object.keys(this.settings).forEach(key => {
+        const setting = this.settings[key];
+        const radios = document.getElementsByName(setting.className);
+        for (let i = 0; i < radios.length; i++) {
+          if (key === 'screenshotStyle') {
+            radios[i].onchange = () => {
+              localStorage.setItem(setting.storageKey, radios[i].value);
+              if (radios[i].value === 'screen-only') {
+                screenshotScreenOnly.style.display = 'block';
+                screenshotWithBody.style.display = 'none';
+              } else {
+                screenshotScreenOnly.style.display = 'none';
+                screenshotWithBody.style.display = 'block';
+              }
+            }
+            continue
+          }
+          if (key === 'solarIndicator') {
+            radios[i].onchange = () => {
+              localStorage.setItem(setting.storageKey, radios[i].value);
+              solarIndicator = radios[i].value === 'on';
+            }
+            continue
+          }
+          if (key === 'displayShadow') {
+            radios[i].onchange = () => {
+              localStorage.setItem(setting.storageKey, radios[i].value);
+              displayShadow = radios[i].value === 'on';
+            }
+            continue
+          }
+          if (key === 'menuBarIconSize') {
+            radios[i].onchange = () => {
+              localStorage.setItem(setting.storageKey, radios[i].value);
+              hudIconResize(radios[i].value);
+            }
+            continue
+          }
+          if (key === 'menuBarIconCus') {
+            radios[i].onchange = () => {
+              const checked = document.querySelectorAll(`input[name=${setting.className}]:checked`);
+              const value = JSON.stringify(Array.from(checked).map(item => item.value));
+              localStorage.setItem(setting.storageKey, value);
+              hudIconCus(value);
+            }
+            continue
+          }
+          if (key === 'language') {
+            radios[i].onchange = () => {
+              localStorage.setItem(setting.storageKey, radios[i].value);
+              i18n();
+            }
+            continue
+          }
+          radios[i].onchange = () => {
+            localStorage.setItem(setting.storageKey, radios[i].value);
+          }
+        }
+      })
+    }
+
+    getSettingValue(key) {
+      return localStorage.getItem(key) || this.settings[key].defaultValue;
+    }
+  }
+
+  const emuSetting = new EmuSettings()
+  emuSetting.onSettingChange()
+  settingsBtn.onclick = () => {
+    if (settingsPanel.style.display === 'none') {
+      settingsPanel.style.display = ''
+      emuSetting.initPanel()
+    } else {
+      settingsPanel.style.display = 'none'
+    }
+  }
+  settingsCloseBtn.onclick = () => {
+    settingsPanel.style.display = 'none';
+  }
+
+  const _sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
+
+  import * as Comlink from "./lib/comlink.min.m.js";
+
+  const emulatorList = {};
+  const emulatorGroup = [];
+  // Since simlib.wasm assumes global states, SimWrapper must in fact be a singleton.
+  // Thus, it's not wrong to store the instance in a global variable.
+  const SimWrapper = Comlink.wrap(new Worker("./lib/simwrapper.js?1687185326516"))
+  let sim
+  const canvas = document.getElementById('screen')
+  const ctx = canvas.getContext('2d')
+  let keypadEl
+  let statusEl
+  let ramLoaded = false;
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const model = urlParams.get('model');
+  let modelName;
+  let modelBackground;
+  let ramCode = urlParams.get('ram_code');
+  let customModelKey = urlParams.get('custom_model');
+  const customModelPrefix = `custom-model-${customModelKey}`
+
+  let logKeyToKiKo, keyLogFontMap, keyLogTextMap;
+  let keyLogFontClass, keyLogFontFamily, defaultInfoOutput;
+  let isEditing = false;
+
+  let intervalPressKeyRunning = false;
+
+  let autoKeyInputType = 'text';
+
+  let hexEditorWindow = null;
+
+  let popupDispalayWindow = null;
+
+  const init = async () => {
+    if (!model) {
+      modelList.style.display = '';
+      container.style.display = 'none';
+      await modelListCreate();
+      return;
+    }
+    modelList.style.display = 'none';
+    container.style.display = '';
+
+    await changeModel();
+    // history.replaceState(null, null, location.pathname)
+  }
+
+  const modelListCreate = async () => {
+    const header = document.createElement('header');
+    const title = document.createElement('span');
+    title.classList.add('title');
+    title.innerHTML = ModelListTitle.innerText;
+    const close = document.createElement('span');
+    close.id = 'modelListClose';
+    close.classList.add('close');
+    close.onclick = modelSwitchCallback;
+    header.appendChild(title);
+    header.appendChild(close);
+    modelList.appendChild(header);
+
+    const customListEl = await getCustomList()
+    const recentListEl = await getRecentList()
+    const buildInListArr = getBuildInList()
+    if (recentListEl) {
+      modelList.appendChild(recentListEl)
+      const hr = document.createElement('hr')
+      hr.className = 'modelListSeparator'
+      modelList.appendChild(hr)
+    }
+    if (customListEl) {
+      modelList.appendChild(customListEl)
+      const hr = document.createElement('hr')
+      hr.className = 'modelListSeparator'
+      modelList.appendChild(hr)
+    }
+    if (buildInListArr) {
+      buildInListArr.forEach(item => {
+        modelList.appendChild(item)
+      })
+    }
+
+    if (!recentListEl && !customListEl && !buildInListArr) {
+      const noModel = document.createElement('div');
+      noModel.classList.add('noModel');
+      const tip01 = document.createElement('span');
+      tip01.innerHTML = CustomModelNoModelTip01.innerText;
+      noModel.appendChild(tip01);
+      const tip02 = document.createElement('span');
+      tip02.onclick = customModelPanelOpen;
+      tip02.innerHTML = CustomModelNoModelTip02.innerText;
+      tip02.style.cursor = 'pointer';
+      tip02.style.textDecoration = 'underline';
+      noModel.appendChild(tip02);
+      const tip03 = document.createElement('span');
+      tip03.innerHTML = CustomModelNoModelTip03.innerText;
+      noModel.appendChild(tip03);
+      modelList.appendChild(noModel);
+    }
+  }
+
+  const modelRamListCreate = async model => {
+    const ul = document.getElementById(model + 'RamList');
+    if (ul.childElementCount > 0) {
+      ul.innerHTML = '';
+      return;
+    }
+
+    const tempRam = document.createElement('li');
+    tempRam.className = 'modelRamOption';
+    tempRam.innerHTML = ModelListTemp.innerText + ' RAM';
+    tempRam.onclick = () => {
+      location.replace(`index.html?model=${model}`)
+    }
+    ul.appendChild(tempRam);
+
+    const newRam = document.createElement('li');
+    newRam.className = 'modelRamOption';
+    newRam.innerHTML = ModelListNew.innerText;
+    newRam.onclick = () => {
+      newRamCreate(model)
+    }
+    ul.appendChild(newRam);
+
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key.startsWith(`ram_name_${model}_`)) {
+        const ramCode = key.split('_')[3];
+        const ramName = localStorage.getItem(key);
+        const liRam = document.createElement('li');
+        liRam.className = 'modelRamOption';
+        liRam.innerHTML = ramName;
+        liRam.onclick = () => {
+          location.replace(`index.html?model=${model}&ram_code=${ramCode}`);
+        }
+        ul.appendChild(liRam);
+      }
+    }
+  }
+
+  const newRamCreate = model => {
+    const ramCode = new Date().getTime();
+    const defalutRamName = new Date(ramCode).toLocaleString().replace(/\//g, '-').substring(2, 15);
+    const ramName = prompt(ModelListEnterNRN.innerText, defalutRamName);
+    if (!ramName) {
+      return;
+    }
+    localStorage.setItem(`ram_name_${model}_${ramCode}`, ramName);
+    location.replace(`index.html?model=${model}&ram_code=${ramCode}`);
+  }
+
+  const changeModel = async () => {
+    infoOutput.value = 'Loading'
+    if (!customModelKey) {
+      container.style.backgroundImage = `url("data/${model}/face.svg")`
+    } else {
+      const url = await localforage.getItem(`${customModelPrefix}-face`)
+      container.style.backgroundImage = `url("${url}")`
+    }
+    if (!customModelKey) {
+      modelBackground = emulatorList[model]['background'];
+    } else {
+      modelBackground = (await localforage.getItem(`${customModelPrefix}-info`)).background;
+    }
+    document.body.style.backgroundColor = modelBackground
+    document.getElementById('status').classList.add(model.slice(0, 2))
+    document.getElementById('screen').classList.add(model.slice(0, 2))
+    Array.prototype.forEach.call(document.querySelectorAll('#status>*, #keypad>*'), el => el.style.display = 'none')
+    // sim.Stop()
+    // sim._simulatorRunning = false
+    // Stop() is asynchronous. Wait for SimWrapper to stop.
+    await _sleep(5)
+    sim = await new SimWrapper
+    if (!customModelKey) {
+      await sim.Init(model, false, false)
+    } else {
+      const customRomData = await localforage.getItem(`${customModelPrefix}-rom`);
+      const customKeylog = await localforage.getItem(`${customModelPrefix}-keylog`);
+      await sim.Init(model, customRomData, customKeylog);
+    }
+    window.sim = sim
+
+    if (!customModelKey) {
+      modelName = emulatorList[model]['name']
+    } else {
+      modelName = (await localforage.getItem(`${customModelPrefix}-info`)).modelName;
+    }
+    defaultInfoOutput = modelName + ' [' + await sim.RomVersion() + ']'
+    infoOutput.value = defaultInfoOutput
+    keypadEl = document.getElementById('keypad' + model.slice(0, 2))
+    keypadEl.style.display = ''
+    statusEl = document.getElementById('status' + model.slice(0, 2))
+    statusEl.style.display = ''
+
+    if (ramCode && localStorage.getItem(`ram_name_${model}_${ramCode}`)) {
+      await loadRam()
+      await _sleep(500)
+    }
+    ramLoaded = true;
+    await addRecent();
+    document.title = modelName + ' - ClassWiz Emulator'
+
+    logKeyToKiKo = await sim._logKeyToKiKo;
+    keyLogFontMap = await sim._keyLogFontMap;
+    keyLogTextMap = await sim._keyLogTextMap;
+
+    keyLogFontClass = (await sim._keyLogMap)['0,0'][0];
+    keyLogFontFamily = (() => {
+      const el = document.createElement('span');
+      el.className = keyLogFontClass;
+      el.innerHTML = '0';
+      document.body.appendChild(el);
+      const ff = window.getComputedStyle(el).getPropertyValue('font-family');
+      el.remove();
+      return ff;
+    })();
+
+    container.addEventListener('wheel', async (e) => {
+      const delta = e.deltaY;
+      let kiko, ki, ko;
+      if (delta > 0) {
+        kiko = logKeyToKiKo['[Down]'];
+        if (!kiko) {
+          kiko = logKeyToKiKo['[↓]'];
+        }
+      } else {
+        kiko = logKeyToKiKo['[Up]'];
+        if (!kiko) {
+          kiko = logKeyToKiKo['[↑]'];
+        }
+      }
+      [ki, ko] = kiko;
+      await sim.SetKey(ki, ko);
+      const el = keypadEl.querySelector(`[data-ki="${ki}"][data-ko="${ko}"]`)
+      el.classList.add('active')
+      await _sleep(150);
+      el.classList.remove('active');
+    }, { passive: true });
+  }
+
+  const loadRam = async () => {
+    await _sleep(model.includes('EY') ? 50 : 10)
+    const ram = await localforage.getItem(`ram_${model}_${ramCode}`)
+    if (ram && ram.length > 0) {
+      await sim.LoadRAM(model, ram)
+      await sim.OnKey();
+    }
+  }
+
+  const addRecent = async () => {
+    localStorage.setItem('last_model', `${model}`)
+    localStorage.setItem('last_ram_code', `${ramCode}`)
+    localStorage.setItem('last_custom_key', `${customModelKey}`)
+    const add = {
+      model: model,
+      ramCode: ramCode,
+      customModelKey: customModelKey,
+    }
+    const recents = await localforage.getItem('recents')
+    if (recents) {
+      recents.unshift(add);
+      for (let i = 1; i < recents.length; i++) {
+        if (recents[i].model === recents[0].model
+          && recents[i].ramCode === recents[0].ramCode
+          && recents[i].customModelKey === recents[0].customModelKey
+        ) {
+          recents.splice(i, 1);
+          break;
+        }
+      }
+      await localforage.setItem('recents', recents);
+    } else {
+      await localforage.setItem('recents', [add]);
+    }
+  }
+
+  const getRecentList = async () => {
+    const recents = await localforage.getItem('recents')
+    if (recents) {
+      const recentDiv = document.createElement('div')
+      recentDiv.id = 'Recent'
+      recentDiv.innerHTML = '<h3 class="modelCountry">' + ModelListRecent.innerText + '</h3>'
+      const recentListEl = document.createElement('ul')
+      recentListEl.className = 'modelList'
+      recents.forEach(recent => {
+        const recentEl = document.createElement('li')
+        recentEl.className = 'modelOption'
+        const model = recent.model
+        const ramCode = recent.ramCode
+        const customModelKey = recent.customModelKey
+        let modelInfo
+        if (!customModelKey) {
+          modelInfo = emulatorList[model];
+        } else {
+          modelInfo = emulatorList[customModelKey];
+        }
+
+        if (!modelInfo) {
+          return
+        }
+        const modelName = modelInfo['name']
+        if (!customModelKey) {
+          const ramName = ramCode ? localStorage.getItem(`ram_name_${model}_${ramCode}`) : ModelListTemp.innerText
+          recentEl.innerHTML = `[${modelName}] (${ramName} RAM)`
+        } else {
+          recentEl.innerHTML = `[${modelName}] (${ModelListCustom.innerText})`
+        }
+        recentEl.onclick = () => {
+          if (!customModelKey) {
+            if (!ramCode) {
+              location.replace(`index.html?model=${model}`)
+              return
+            }
+            location.replace(`index.html?model=${model}&ram_code=${ramCode}`)
+          } else {
+            location.replace(`index.html?model=${model}&custom_model=${customModelKey}`)
+          }
+        }
+        recentListEl.appendChild(recentEl)
+      })
+      recentDiv.appendChild(recentListEl)
+      return recentDiv
+    }
+    return null
+  }
+
+  const getCustomList = async () => {
+    const customs = await localforage.keys();
+    let hasCustom = false;
+    const div = document.createElement('div');
+    div.id = 'Custom';
+    const h3 = document.createElement('h3')
+    h3.innerHTML = CustomModelListTitle.innerText;
+    h3.className = 'modelCountry'
+    div.appendChild(h3)
+    for (const key of customs) {
+      if (!(key.startsWith('custom-model-') && key.endsWith('-info'))) {
+        continue;
+      }
+      hasCustom = true;
+      const customInfo = await localforage.getItem(key);
+      const customCode = `${customInfo.key}`;
+      const customName = customInfo.modelName;
+      const modelId = customInfo.modelId;
+      emulatorList[customCode] = { name: customName, background: '#777' };
+      const li = document.createElement('li');
+      li.id = customCode;
+      li.className = 'modelOption';
+      li.innerHTML = customName;
+      li.onclick = () => {
+        location.replace(`index.html?model=${modelId}&custom_model=${customCode}`)
+      }
+      div.appendChild(li);
+    }
+    if (hasCustom) {
+      return div;
+    }
+    return null;
+  }
+
+  const getBuildInList = () => {
+    const i18nLangKey = emuSetting.getSettingValue('language');
+    const modelList = [];
+    for (const group of emulatorGroup) {
+      const shortName = group.shortName;
+      let countryName = group.name[i18nLangKey];
+      if (!countryName) {
+        countryName = group.name['en'];
+      }
+      const models = group.models;
+      const div = document.createElement('div');
+      div.id = shortName;
+      const h3 = document.createElement('h3');
+      h3.innerHTML = `${shortName} - ${countryName}`;
+      h3.className = 'modelCountry';
+      div.appendChild(h3);
+      const ul = document.createElement('ul');
+      ul.className = 'modelList';
+      for (const model of models) {
+        const modelFromList = emulatorList[model];
+        if (!modelFromList) {
+          continue;
+        }
+        const modelName = modelFromList["name"];
+        const li = document.createElement('li');
+        li.id = model;
+        li.className = 'modelOption';
+        li.innerHTML = modelName;
+        li.onclick = () => {
+          modelRamListCreate(model)
+        }
+        ul.appendChild(li);
+        const ulRam = document.createElement('ul');
+        ulRam.className = 'modelRamList';
+        ulRam.id = model + 'RamList';
+        ul.appendChild(ulRam)
+      }
+      div.appendChild(ul);
+      modelList.push(div);
+    }
+    if (modelList.length > 0) {
+      return modelList;
+    }
+    return null;
+  }
+
+  // Beware that _simRunning and _simulatorRunning are different.
+  // _simRunning controls the execution loop.
+  // _simulatorRunning is set when _SimStartCallback(2) is called, but not unset when _SimStop() gets called.
+  // SimulatorIsRunning() returns _simulatorRunning.
+  window.imageData = undefined;
+  /**
+   * TODO: the shadow displaye should be done not in the worker, also should relative with the contrast setting
+   * of the calculator, and the shadow should be displayed only when the calculator is running (press ON should
+   * not display the shadow). the former one not be done yet, the later one is done by compare the cpuTime,
+   * should be improved.
+   * */
+  let displayShadow = emuSetting.getSettingValue('displayShadow') !== 'off'
+  let solarIndicator = emuSetting.getSettingValue('solarIndicator') === 'on'
+  let screenShadow = true;
+  let cpuTime = 0;
+  let changeShadowTime;
+  let hasRun = false;
+  requestAnimationFrame(async function render() {
+    if (!ramLoaded) {
+      requestAnimationFrame(render)
+      return
+    }
+
+    if (cpuTime !== await sim._cpuTime && hasRun) {
+      screenShadow = false;
+      changeShadowTime = Date.now();
+    } else if (Date.now() - changeShadowTime > 1700) {
+      screenShadow = true;
+    }
+
+    if (await sim.SimulatorIsRunning()) {
+      hasRun = true;
+      window.imageData = await sim.GetDisplayImageData(window.imageData, screenShadow && displayShadow)
+      ctx.canvas.width = window.imageData.width
+      ctx.canvas.height = window.imageData.height
+      ctx.putImageData(window.imageData, 0, 0)
+      const status = await sim.GetSymbolState(undefined, solarIndicator)
+      for (let i = 0; i < status.length; i++) {
+        if (i === status.length - 1 && !screenShadow) {
+          statusEl.children[i].style.opacity = '0'
+          break
+        }
+        statusEl.children[i].style.opacity = status[i] === '1' ? '1' : (screenShadow && displayShadow ? '0.05' : '0')
+      }
+      cpuTime = await sim._cpuTime
+
+      if (ramCode && localStorage.getItem(`ram_name_${model}_${ramCode}`)) {
+        await localforage.setItem(`ram_${model}_${ramCode}`, await sim.SaveRAM(model))
+      }
+
+      if (await sim._keyLogEnabled) {
+        infoOutput.value = (await sim.KeyLogBuffer()).map(kl => {
+          return kl[1]
+        }).join('');
+        infoOutput.scrollLeft = infoOutput.scrollWidth;
+      }
+
+    } else {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    }
+
+    requestAnimationFrame(render)
+  })
+
+  const handleResize = () => {
+    const width = 375
+    const height = 635
+    const scale = Math.min(document.documentElement.clientWidth / width, document.documentElement.clientHeight / height)
+    container.style.width = width + 'px'
+    container.style.height = height + 'px'
+    container.style.transform = `translate(
+			${(document.documentElement.clientWidth - width * scale) / 2}px,
+			${(document.documentElement.clientHeight - height * scale) / 2}px
+		) scale(${scale})`
+  }
+
+  onresize = handleResize;
+  handleResize();
+
+  // https://developer.mozilla.org/zh-CN/docs/Web/API/UI_Events/Keyboard_event_key_values
+  const keyboardMap = {}
+  keyboardMap['Tab'] = keyboardMap['Spacebar'] = keyboardMap['Space'] = keyboardMap[' '] = ['[AC]']
+  keyboardMap['F1'] = keyboardMap['q'] = keyboardMap['Q'] = ['[SHIFT]', '[SECONDE]']
+  keyboardMap['F2'] = keyboardMap['a'] = keyboardMap['A'] = ['[ALPHA]']
+  keyboardMap['F3'] = keyboardMap['Home'] = ['[MENU]', '[HOME]', '[菜单]', '[主屏幕]', '[ACCUEIL]']
+  keyboardMap['F4'] = ['[ON]', '[开机]']
+  keyboardMap['F5'] = keyboardMap['o'] = keyboardMap['O'] = ['[OPTN]', '[CATALOG]', '[目录]']
+  keyboardMap['='] = ['[=]', '[EXE]']
+  keyboardMap['Enter'] = ['[EXE]', '[=]']
+  keyboardMap['Delete'] = keyboardMap['Backspace'] = ['[DEL]', '[SUPPR]', '[⌫]']
+  keyboardMap['Up'] = keyboardMap['ArrowUp'] = ['[Up]', '[↑]']
+  keyboardMap['Down'] = keyboardMap['ArrowDown'] = ['[Down]', '[↓]']
+  keyboardMap['Left'] = keyboardMap['ArrowLeft'] = ['[Left]', '[←]']
+  keyboardMap['Right'] = keyboardMap['ArrowRight'] = ['[Right]', '[→]']
+  keyboardMap['PageUp'] = ['[PAGEUP]', '[PageUp]', '[↟上翻]']
+  keyboardMap['PageDown'] = ['[PAGEDOWN]', '[PageDown]', '[↡下翻]']
+  keyboardMap['n'] = keyboardMap['N'] = ['[Ans]']
+  keyboardMap['f'] = keyboardMap['F'] = ['[FUNCTION]', '[f(x)]']  // TODO
+  keyboardMap['v'] = keyboardMap['V'] = ['[VARIABLE]', '[变量]']  // TODO
+  keyboardMap['u'] = keyboardMap['U'] = ['[TOOLS]', '[工具]']  // TODO
+  keyboardMap['w'] = keyboardMap['W'] = ['[SETTINGS]', '[设置]']  // TODO
+  keyboardMap['b'] = keyboardMap['B'] = ['[BACK]', '[返回]']
+  keyboardMap['g'] = keyboardMap['G'] = ['[S<>D]', '[S⇔D]', '[FORMAT]', '[格式]']
+  keyboardMap['e'] = keyboardMap['E'] = ['[*10^x]', '[×10^x]', '[×10^■]']
+  keyboardMap['s'] = keyboardMap['S'] = ['[sin]']
+  keyboardMap['c'] = keyboardMap['C'] = ['[cos]']
+  keyboardMap['t'] = keyboardMap['T'] = ['[tan]']
+  keyboardMap['d'] = keyboardMap['D'] = ['[d/c]', '[■/□]']
+  keyboardMap['r'] = keyboardMap['R'] = ['[Square Root]', '[√(■)]']
+  keyboardMap['i'] = keyboardMap['I'] = ['[x^2]', '[■²]', '[x²]']
+  keyboardMap['l'] = keyboardMap['L'] = ['[log(a,b)]', '[log(■,□)]']
+  keyboardMap['^'] = keyboardMap['p'] = keyboardMap['P'] = ['[^]', '[■^□]', '[x^■]']
+  keyboardMap['('] = ['[(]']
+  keyboardMap[')'] = ['[)]']
+  keyboardMap['+'] = ['[+]']
+  keyboardMap['-'] = ['[-]']
+  keyboardMap['*'] = ['[*]', '[×]']
+  keyboardMap['/'] = ['[/]', '[÷]']
+  keyboardMap['.'] = ['[.]', '[,]']
+  keyboardMap[','] = ['[,]', '[.]']
+  keyboardMap['0'] = ['[0]']
+  keyboardMap['1'] = ['[1]']
+  keyboardMap['2'] = ['[2]']
+  keyboardMap['3'] = ['[3]']
+  keyboardMap['4'] = ['[4]']
+  keyboardMap['5'] = ['[5]']
+  keyboardMap['6'] = ['[6]']
+  keyboardMap['7'] = ['[7]']
+  keyboardMap['8'] = ['[8]']
+  keyboardMap['9'] = ['[9]']
+  keyboardMap['x'] = keyboardMap['X'] = ['[x]']
+  keyboardMap['y'] = keyboardMap['Y'] = ['[y]']
+
+  keypad.onpointerdown = async (event) => {
+    if (event.target.hasAttribute('data-ki') && await sim.SimulatorIsRunning()) {
+      await sim.SetKey(+event.target.dataset.ki, +event.target.dataset.ko)
+    }
+  }
+
+  onkeydown = onkeyup = (event) => {
+    if (isEditing) {
+      return;
+    }
+    for (const logKey of keyboardMap[event.key] || []) if (logKeyToKiKo[logKey]) {
+      event.preventDefault()
+      const [ki, ko] = logKeyToKiKo[logKey]
+      if (event.type === 'keydown') sim.SetKey(ki, ko)
+      const el = keypadEl.querySelector(`[data-ki="${ki}"][data-ko="${ko}"]`)
+      if (el) event.type === 'keydown' ? el.classList.add('active') : el.classList.remove('active')
+      break
+    }
+  }
+
+  const modelSwitchCallback = () => {
+    if (!model) {
+      return
+    }
+    if (container.style.display === '') {
+      container.style.display = 'none'
+      modelList.style.display = ''
+      modelList.innerHTML = ''
+      document.body.style.backgroundColor = '#e0e1df'
+      modelListCreate()
+    } else {
+      container.style.display = ''
+      modelList.style.display = 'none'
+      document.body.style.backgroundColor = modelBackground
+    }
+  }
+
+  modelSwitchBtn.onclick = modelSwitchCallback
+
+  const takeScreenshot = async () => {
+    if (!ramLoaded) {
+      return;
+    }
+
+    const scsStyle = emuSetting.getSettingValue('screenshotStyle')
+    const isScreenOnly = scsStyle === 'screen-only'
+    const ZOOM = isScreenOnly ? emuSetting.getSettingValue('screenshotZoom') : 4
+    const SHADOW = emuSetting.getSettingValue('displayShadow') !== 'off'
+    const FRAME = isScreenOnly ? emuSetting.getSettingValue('screenshotFrame') : 'off'
+    const _bgSetup = emuSetting.getSettingValue('screenshotBackground')
+    let BG_COLOR;
+    if (isScreenOnly) {
+      if (!_bgSetup || _bgSetup === 'depends-on-model') {
+        BG_COLOR = model.slice(0, 2) === 'CY' ? "#d6e3e3" : "#d6e3d6"
+      } else if (_bgSetup === 'custom') {
+        BG_COLOR = emuSetting.getSettingValue('screenshotCustomBackgroundColor')
+      } else {
+        BG_COLOR = '#fff'
+      }
+    } else {
+      BG_COLOR = 'rgba(0, 0, 0, 0)'
+    }
+    const STORAGE = emuSetting.getSettingValue('screenshotStorage')
+
+    const _frameLineWidth = 1
+    const _frameGap = 2
+    const _statusHeight = 10
+    const _displayWidth = 192
+    const _displayHeight = 63
+    const FRAME_LINE_WIDTH = _frameLineWidth * ZOOM
+    const FRAME_GAP = _frameGap * ZOOM
+    const FRAME_ROUND_RADIUS = 4 * ZOOM
+    const STATUS_HEIGHT = _statusHeight * ZOOM
+    const DISPLAY_WIDTH = _displayWidth * ZOOM
+    const DISPLAY_HEIGHT = _displayHeight * ZOOM
+    const SCREEN_WIDTH = DISPLAY_WIDTH + (FRAME_GAP + FRAME_LINE_WIDTH) * 2
+    const SCREEN_HEIGHT = DISPLAY_HEIGHT + STATUS_HEIGHT + (FRAME_GAP + FRAME_LINE_WIDTH) * 2
+
+    const statusEl = document.getElementById('status').cloneNode(true)
+    statusEl.setAttribute('width', DISPLAY_WIDTH)
+    const modelStatusEl = statusEl.getElementById('status' + model.slice(0, 2))
+    const status = await sim.GetSymbolState(undefined, solarIndicator)
+    for (let i = 0; i < status.length; i++) {
+      modelStatusEl.children[i].style.opacity = status[i] === '1' ? '1' : (SHADOW ? '0.05' : '0')
+    }
+
+    const imageDataRaw = await sim.GetDisplayImageData(window.imageData, SHADOW)
+    let imageDataNew
+    if (ZOOM === 1) {
+      imageDataNew = imageDataRaw
+    } else {
+      imageDataNew = new ImageData(DISPLAY_WIDTH, DISPLAY_HEIGHT)
+      imageDataNew.data.fill(0)
+      for (let y = 0; y < _displayHeight; y++) {
+        for (let x = 0; x < _displayWidth; x++) {
+          let i = (y * _displayWidth + x) * 4
+          let a = imageDataRaw.data[i + 3]
+          for (let y2 = 0; y2 < ZOOM; y2++) {
+            for (let x2 = 0; x2 < ZOOM; x2++) {
+              let i2 = ((y * ZOOM + y2) * DISPLAY_WIDTH + (x * ZOOM + x2)) * 4
+              imageDataNew.data[i2 + 3] = a
+            }
+          }
+        }
+      }
+    }
+
+    const canvas = document.getElementById('screenshotCanvas')
+    const ctx = canvas.getContext('2d');
+    canvas.width = SCREEN_WIDTH;
+    canvas.height = SCREEN_HEIGHT;
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    const lw = FRAME_LINE_WIDTH
+    ctx.fillStyle = BG_COLOR;
+    if (FRAME === 'off' || FRAME === 'vertical') {
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    if (FRAME === 'vertical') {
+      ctx.lineWidth = lw;
+      ctx.strokeStyle = "#595959";
+      ctx.strokeRect(lw / 2, lw / 2, canvas.width - lw, canvas.height - lw);
+    } else if (FRAME === 'round-corner') {
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.strokeStyle = "#595959";
+      ctx.lineWidth = lw;
+      const radius = FRAME_ROUND_RADIUS
+      ctx.moveTo(radius + lw / 2, lw / 2);
+      ctx.lineTo(SCREEN_WIDTH - radius - lw / 2, lw / 2);
+      ctx.arcTo(SCREEN_WIDTH - lw / 2, lw / 2, SCREEN_WIDTH - lw / 2, radius + lw / 2, radius);
+      ctx.lineTo(SCREEN_WIDTH - lw / 2, SCREEN_HEIGHT - radius - lw / 2);
+      ctx.arcTo(SCREEN_WIDTH - lw / 2, SCREEN_HEIGHT - lw / 2, SCREEN_WIDTH - radius - lw / 2, SCREEN_HEIGHT - lw / 2, radius);
+      ctx.lineTo(radius + lw / 2, SCREEN_HEIGHT - lw / 2);
+      ctx.arcTo(lw / 2, SCREEN_HEIGHT - lw / 2, lw / 2, SCREEN_HEIGHT - radius - lw / 2, radius);
+      ctx.lineTo(lw / 2, radius + lw / 2);
+      ctx.arcTo(lw / 2, lw / 2, radius + lw / 2, lw / 2, radius);
+
+      ctx.fillStyle = BG_COLOR;
+      ctx.fill();
+      ctx.stroke();
+    }
+
+    const serializer = new XMLSerializer();
+    const statusSvg = serializer.serializeToString(statusEl);
+    const imgStatus = new Image();
+    let STATUS_READY = false
+    let DISPLAY_READY = false
+    imgStatus.onload = () => {
+      ctx.drawImage(imgStatus, FRAME_GAP + FRAME_LINE_WIDTH, FRAME_GAP + FRAME_LINE_WIDTH);
+      STATUS_READY = true
+    };
+    imgStatus.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(statusSvg)
+
+    const imgDisplay = document.createElement('canvas')
+    imgDisplay.width = imageDataNew.width
+    imgDisplay.height = imageDataNew.height
+    const ctxDisplay = imgDisplay.getContext('2d')
+    ctxDisplay.putImageData(imageDataNew, 0, 0)
+    const imgDisplayZoom = new Image()
+    imgDisplayZoom.onload = () => {
+      ctx.drawImage(imgDisplayZoom, FRAME_GAP + FRAME_LINE_WIDTH, FRAME_GAP + FRAME_LINE_WIDTH + STATUS_HEIGHT);
+      DISPLAY_READY = true
+    }
+    imgDisplayZoom.src = imgDisplay.toDataURL()
+
+    while (!STATUS_READY && !DISPLAY_READY) {
+      await _sleep(100)
+    }
+
+    const canvasToBlob = async () => {
+      return new Promise(resolve => {
+        canvas.toBlob(blob => {
+          resolve(blob)
+        });
+      })
+    }
+
+    let canvasBlob = await canvasToBlob()
+    let screenshotModelName = modelName;
+
+    if (scsStyle === 'with-model-body') {
+      const bodyScreenTemplate = {
+        'cw-black-cell': {
+          x: 100,
+          y: 288,
+          width: 708,
+          font: {
+            family: 'NH75-Normal',
+            src: 'url(font/NH75-Normal.ttf)'
+          },
+          modelName: {
+            font: '32px NH75-Normal',
+            space: '2.4px',
+            color: '#bfbfbf',
+            x: 108,
+            y: 205,
+          },
+          url: 'img/up-body/cw-black-cell.png'
+        },
+        'cw-black-solar': {
+          x: 100,
+          y: 288,
+          width: 708,
+          font: {
+            family: 'NH75-Normal',
+            src: 'url(font/NH75-Normal.ttf)'
+          },
+          modelName: {
+            font: '32px NH75-Normal',
+            space: '2.4px',
+            color: '#bfbfbf',
+            x: 108,
+            y: 205,
+          },
+          url: 'img/up-body/cw-black-solar.png'
+        },
+        'ex-black-solar': {
+          x: 80,
+          y: 210,
+          width: 466,
+          font: {
+            family: 'Rouben-SemiBold',
+            src: 'url(font/Rouben-SemiBold.ttf)'
+          },
+          modelName: {
+            font: '22px Rouben-SemiBold',
+            space: '0.45px',
+            color: '#cecece',
+            x: 151,
+            y: 139,
+          },
+          url: 'img/up-body/ex-black-solar.png'
+        },
+      }
+      const solarModelNameFit = {
+        'CY236': {
+          'solar': 'fx-82CN X',
+          'cell': 'fx-82CN X',
+        },
+        'EY005': {
+          'solar': 'fx-991CW',
+          'cell': 'fx-570CW',
+        },
+        'EY001': {
+          'solar': 'fx-85CW',
+          'cell': 'fx-82CW',
+        },
+        'CY234': {
+          'solar': 'fx-991EX',
+          'cell': 'fx-570EX',
+        },
+        'CY230': {
+          'solar': 'fx-85EX',
+          'cell': 'fx-82EX',
+        },
+        'CY258': {
+          'solar': 'fx-991AR X',
+          'cell': 'fx-570AR X',
+        },
+        'CY291': {
+          'solar': 'fx-85CE X',
+          'cell': 'fx-82CE X',
+        },
+        'EY012': {
+          'solar': 'fx-85DE CW',
+          'cell': 'fx-82DE CW',
+        },
+        'CY215': {
+          'solar': 'fx-85DE X',
+          'cell': 'fx-82DE X',
+        },
+        'EY041': {
+          'solar': 'fx-85GT CW',
+          'cell': 'fx-83GT CW',
+        },
+        'CY213': {
+          'solar': 'fx-85GT X',
+          'cell': 'fx-83GT X',
+        },
+        'EY039': {
+          'solar': 'fx-991LA CW',
+          'cell': 'fx-570LA CW',
+        },
+        'CY272': {
+          'solar': 'fx-991LA X',
+          'cell': 'fx-570LA X',
+        },
+        'CY270': {
+          'solar': 'fx-82LA X',
+          'cell': 'fx-82LA X',
+        },
+        'EY011': {
+          'solar': 'fx-991SP CW',
+          'cell': 'fx-570SP CW',
+        },
+        'EY008': {
+          'solar': 'fx-85SP CW',
+          'cell': 'fx-82SP CW',
+        },
+        'CY268': {
+          'solar': 'fx-991SP X II',
+          'cell': 'fx-570SP X II',
+        },
+        'CY266': {
+          'solar': 'fx-85SP X II',
+          'cell': 'fx-82SP X II',
+        },
+        'CY254': {
+          'solar': 'fx-991SP X',
+          'cell': 'fx-570SP X',
+        },
+        'CY252': {
+          'solar': 'fx-82SP X II',
+          'cell': 'fx-82SP X II',
+        },
+      }
+      let BODY_READY = false
+      let SCREEN_READY = false
+      const modelBody = new Image()
+      let template
+      if (model.slice(0, 2) === 'EY') {
+        template = solarIndicator ? bodyScreenTemplate['cw-black-solar'] : bodyScreenTemplate['cw-black-cell']
+      } else {
+        // template = solarIndicator ? bodyScreenTemplate['ex-black-solar'] : bodyScreenTemplate['ex-black-cell']
+        template = bodyScreenTemplate['ex-black-solar']
+      }
+      modelBody.src = template.url
+      modelBody.onload = () => {
+        BODY_READY = true
+      }
+      while (!BODY_READY) {
+        await _sleep(100)
+      }
+
+      const screenImg = new Image()
+      screenImg.src = canvas.toDataURL()
+      screenImg.onload = () => {
+        canvas.width = modelBody.width
+        canvas.height = modelBody.height
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+        ctx.drawImage(modelBody, 0, 0)
+        ctx.drawImage(screenImg, template.x, template.y, template.width, template.width * screenImg.height / screenImg.width)
+        SCREEN_READY = true
+      }
+
+      while (!SCREEN_READY) {
+        await _sleep(100)
+      }
+
+      if (!customModelKey) {
+        screenshotModelName = solarModelNameFit[model.slice(0, 5)]
+        if (screenshotModelName !== undefined) {
+          screenshotModelName = solarIndicator ? modelName['solar'] : modelName['cell']
+        } else {
+          screenshotModelName = modelName
+        }
+      }
+      const font = new FontFace(template.font.family, template.font.src)
+      await font.load()
+      document.fonts.add(font)
+      ctx.font = template.modelName.font
+      ctx.fillStyle = template.modelName.color
+      ctx.textAlign = model.slice(0, 2) === 'EY' ? 'left' : 'center'
+      ctx.letterSpacing = template.modelName.space
+      ctx.fillText(screenshotModelName, template.modelName.x, template.modelName.y)
+
+      canvasBlob = await canvasToBlob()
+    }
+
+    if (STORAGE === 'clipboard' || STORAGE === 'both') {
+      if (navigator.clipboard !== undefined) {
+        const item = new ClipboardItem({ 'image/png': canvasBlob });
+        await navigator.clipboard.write([item]);
+      }
+    }
+    if (STORAGE === 'download' || STORAGE === 'both') {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(canvasBlob)
+      a.download = `${screenshotModelName.replaceAll('/', '_')}-${new Date().toLocaleString().replace(/:|\//g, '_')}.png`
+      a.click()
+      a.remove()
+    }
+
+    const deviceWidth = (window.innerWidth
+      || document.documentElement.clientWidth
+      || document.body.clientWidth) - 20;
+    screenshotCanvas.style.width = Math.min(deviceWidth, SCREEN_WIDTH) + 'px';
+    screenshotPreview.classList.add('appear');
+    await _sleep(2000)
+    screenshotPreview.classList.remove('appear');
+  }
+
+  screenshotBtn.onclick = takeScreenshot
+  window.takeScreenshot = takeScreenshot
+
+  const pressKey = async logKey => {
+    if (!logKeyToKiKo[logKey]) {
+      return
+    }
+    const [ki, ko] = logKeyToKiKo[logKey];
+    await sim.SetKey(ki, ko);
+  }
+
+  const exportQr = async () => {
+    let qr = await sim.GetQRCode();
+    let k = false;
+    if (!qr) {
+      k = true;
+      await pressKey('[SHIFT]');
+      await pressKey('[SECONDE]');
+      await pressKey((await sim._modelType) === 'CY' ? '[OPTN]' : '[x]');
+      const d = new Date().getTime();
+      while (new Date().getTime() - d < 600) {
+        await _sleep(150);
+        qr = await sim.GetQRCode();
+        if (qr) {
+          break;
+        }
+      }
+      if (!qr) {
+        alert(QRPopUpNoQRC.innerText);
+        return;
+      }
+    }
+    let t = '';
+    if (navigator.clipboard !== undefined) {
+      await navigator.clipboard.writeText(qr);
+      t = QRPopUpCopiedTC.innerText;
+    }
+    t += QRPopUpConfirmTOINT.innerText;
+    prompt(t, qr) ? window.open(qr) : null;
+    k ? await pressKey('[AC]') : null;
+  }
+
+  exportQrBtn.onclick = exportQr;
+
+  const readData = async (start, len, valOut) => {
+    return await sim._ReadDataMemory(start, len, Comlink.proxy(valOut));
+  }
+  const writeData = async (start, len, valIn) => {
+    return await sim._WriteDataMemory(start, len, new Uint8Array(valIn));
+  }
+  const readCode = async (start, len, valOut) => {
+    return await sim._ReadCodeMemory(start, len, Comlink.proxy(valOut));
+  }
+  const writeCode = async (start, len, valIn) => {
+    return await sim._WriteCodeMemory(start, len, new Uint8Array(valIn));
+  }
+  const openHexEditor = (type) => {
+    if (!ramLoaded) {
+      return;
+    }
+    if (hexEditorWindow && !hexEditorWindow.closed) {
+      if (type !== window.hexEditorType) {
+        hexEditorWindow.close();
+      } else {
+        hexEditorWindow.focus();
+        return;
+      }
+    }
+    window.hexEditorType = type;
+    if (type === 'ram') {
+      window.hexEditorRead = readData
+      window.hexEditorWrite = writeData
+    } else if (type === 'rom') {
+      window.hexEditorRead = readCode
+      window.hexEditorWrite = writeCode
+    } else {
+      return;
+    }
+
+    hexEditorWindow = window.open('hex-editor.html', 'Hex Editor', 'width=1000,height=850,left=500');
+  }
+
+  hexEditorBtn.onclick = () => {
+    if (!ramLoaded) {
+      return;
+    }
+    hexEditorPanel.style.display = '';
+  };
+
+  const hexEditorClose = () => {
+    hexEditorPanel.style.display = 'none';
+  };
+
+  hexEditorCloseBtn.onclick = hexEditorClose;
+
+  hexEditorRamBtn.onclick = () => {
+    hexEditorClose();
+    openHexEditor('ram');
+  };
+
+  hexEditorRomBtn.onclick = () => {
+    hexEditorClose();
+    openHexEditor('rom');
+  };
+
+  window.addEventListener('beforeunload', () => {
+    if (hexEditorWindow && !hexEditorWindow.closed) {
+      hexEditorWindow.close();
+    }
+    if (popupDispalayWindow && !popupDispalayWindow.closed) {
+      popupDispalayWindow.close();
+    }
+  });
+
+  const resetKeylogPreview = async () => {
+    keylogPreview.dataset.fontSize = '1.4';
+    keylogPreview.style = '';
+    keylogPreview.innerHTML = (await sim.KeyLogBuffer()).map(kl => `<span style='font-family: ${keyLogFontFamily}' data-text="${kl[2]}">${kl[1]}</span>`).join('');
+
+    if (isMobile()) {
+      keylogPreview.contentEditable = false;
+    }
+  }
+
+  keylogPreview.onkeydown = keylogPreview.onkeyup = keylogPreview.onpaste = keylogPreview.ondrop = e => {
+    if (!e.ctrlKey) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+  }
+
+  keylogResetBtn.onclick = resetKeylogPreview;
+
+  const openKeylogPanel = async () => {
+    if (!ramLoaded) {
+      return;
+    }
+    if (await sim._keyLogEnabled) {
+      isEditing = true;
+      keylogPanel.style.display = '';
+      await resetKeylogPreview();
+    } else {
+      await sim.KeyLogStart();
+      infoOutput.classList.add(keyLogFontClass, 'keylog');
+      infoOutput.addEventListener('click', openKeylogPanel);
+    }
+  }
+
+  keyLogBtn.onclick = openKeylogPanel;
+
+  keylogSizeEnlargeBtn.onclick = keylogSizeReduceBtn.onclick = e => {
+    const curFontSize = parseFloat(keylogPreview.dataset.fontSize);
+    const newFontSize = (parseFloat(e.target.dataset.val) + curFontSize).toFixed(1);
+    if (!newFontSize || newFontSize < 1) {
+      return;
+    }
+    keylogPreview.dataset.fontSize = newFontSize;
+    keylogPreview.style.fontSize = newFontSize + 'rem';
+  }
+
+  const keylogOptimize = async () => {
+    const rawToHtml = async raw => {
+      let isNewCW = (await sim._modelType) === 'EY';
+      let isShift = false;
+      let isAlpha = false;
+      let html = '';
+      for (const i of raw) {
+        const standard = document.createElement('span');
+        standard.style.fontFamily = keyLogFontFamily;
+        standard.dataset.text = keyLogFontMap[i][0];
+        standard.innerText = i;
+        if (i === 'q') {
+          isShift = !isShift;
+          isAlpha = false;
+          html += standard.outerHTML;
+          continue;
+        }
+        if (i === 'Q' && !isNewCW) {
+          isAlpha = !isAlpha;
+          isShift = false;
+          html += standard.outerHTML;
+          continue;
+        }
+        html += standard.outerHTML;
+        if (isShift || isAlpha) {
+          const keyNote = keyLogFontMap[i][isShift ? 1 : 2];
+          isShift = false;
+          isAlpha = false;
+          if (!keyNote) {
+            continue;
+          }
+          if (!keyNote[0]) {
+            const keyNoteText = document.createElement('span');
+            keyNoteText.innerText = keyNoteText.dataset.text = keyNote[1];
+            html += keyNoteText.outerHTML;
+          } else {
+            const keyNoteKey = document.createElement('span');
+            keyNoteKey.style.fontFamily = keyLogFontFamily;
+            keyNoteKey.dataset.text = keyNote[1];
+            keyNoteKey.innerText = keyNote[0];
+            html += keyNoteKey.outerHTML;
+          }
+        }
+      }
+      return html;
+    }
+
+    const cpsToHtml = async cps => {
+      const [times, raw] = cps.split(/,(.+)/);
+      const pre = document.createElement('span');
+      const i18nTimes = keylogTimes.innerText.trim();
+      pre.innerText = ` { ${times} ${i18nTimes} `;
+      const middle = await rawToHtml(raw);
+      const post = document.createElement('span');
+      post.innerText = ' } ';
+      return pre.outerHTML + middle + post.outerHTML;
+    }
+
+    const keylogRaw = (await sim.KeyLogBuffer()).map(kl => kl[1]).join('');
+    const pattern = /(.+?)\1{2,}/g;
+    const split = keylogRaw.replace(pattern, (match, p1) => {
+      const times = match.length / p1.length;
+      return `\n${times},${p1}\n`;
+    }).split('\n');
+    let raw = false;
+    let s = '';
+    for (const kl of split) {
+      raw = !raw;
+      s += raw ? await rawToHtml(kl) : await cpsToHtml(kl);
+    }
+    keylogPreview.innerHTML = s;
+  }
+
+  keylogOptBtn.onclick = keylogOptimize;
+
+  const getSelectionToCopy = () => {
+    const selection = window.getSelection();
+    let range;
+    if (selection.type === 'Caret' || selection.type === 'None') {
+      range = document.createRange();
+      range.selectNodeContents(keylogPreview);
+      selection.removeAllRanges();
+      selection.addRange(range);
+    }
+    range = window.getSelection().getRangeAt(0);
+    if (range.startContainer === range.endContainer && "#text" === range.commonAncestorContainer.nodeName) {
+      range.selectNode(range.commonAncestorContainer.parentElement);
+    }
+    const contents = range.cloneContents();
+    let text = '';
+    const fontSize = window.getComputedStyle(keylogPreview).getPropertyValue('font-size');
+    let html = `<span style='font-size: ${fontSize}'>`;
+    for (const i of contents.childNodes) {
+      text += i.dataset.text || i.innerText;
+      html += i.outerHTML;
+    }
+    html += '</span>';
+    return [text, html];
+  }
+
+  keylogPreview.oncopy = keylogPreview.oncut = e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const [text, html] = getSelectionToCopy();
+    e.clipboardData.setData('text/plain', text);
+    e.clipboardData.setData('text/html', html);
+  }
+
+  keylogCopyBtn.onclick = () => {
+    const [text, html] = getSelectionToCopy();
+    if (navigator.clipboard) {
+      const textBlob = new Blob([text], { type: 'text/plain' });
+      const htmlBlob = new Blob([html], { type: 'text/html' });
+      const data = [new ClipboardItem({ "text/html": htmlBlob, "text/plain": textBlob })];
+      navigator.clipboard.write(data);
+    } else {
+      document.execCommand('copy');
+    }
+  }
+
+  const intervalPressKey = async (keylog) => {
+    window.intervalPressKeyRunning = true;
+    for (let i = 0; i < keylog.length; i++) {
+      const k = keylog[i];
+      if (!window.intervalPressKeyRunning) {
+        break;
+      }
+      if (!logKeyToKiKo[k]) {
+        continue;
+      }
+      const [ki, ko] = logKeyToKiKo[k];
+      await sim.SetKey(ki, ko)
+      const el = keypadEl.querySelector(`[data-ki="${ki}"][data-ko="${ko}"]`)
+      el.classList.add('active')
+      await _sleep(150);
+      el.classList.remove('active');
+      if (i === keylog.length - 1) {
+        break;
+      }
+      await _sleep(50);
+      if (ki == 0 && ko == 0) {
+        await _sleep(2500);
+      }
+    }
+    window.intervalPressKeyRunning = false;
+  }
+
+  const keylogReplay = async () => {
+    const keylog = (await sim.KeyLogBuffer()).map(kl => kl[2]);
+    await sim.KeyLogStart();
+    isEditing = true;
+    await intervalPressKey(keylog);
+    isEditing = false;
+  }
+
+  keylogReplayBtn.onclick = () => {
+    closeKeylogPanel();
+    keylogReplay();
+  }
+
+  const closeKeylogPanel = () => {
+    keylogPanel.style.display = 'none';
+    isEditing = false;
+  }
+
+  keylogCloseBtn.onclick = keylogCloseBtnLower.onclick = closeKeylogPanel;
+
+  keylogClearBtn.onclick = async () => {
+    await sim.KeyLogStart();
+    closeKeylogPanel();
+  }
+
+  keylogStopBtn.onclick = async () => {
+    await sim.KeyLogStop();
+    infoOutput.value = defaultInfoOutput;
+    infoOutput.classList = [];
+    infoOutput.scrollLeft = 0;
+    infoOutput.removeEventListener('click', openKeylogPanel);
+    closeKeylogPanel();
+  }
+
+  autoKeyBtn.onclick = () => {
+    if (!ramLoaded) {
+      return;
+    }
+    isEditing = true;
+    autoKeyPanel.style.display = '';
+    autoKeyPreview.classList.add(keyLogFontClass);
+  }
+
+  const autoKeyClose = () => {
+    isEditing = false;
+    autoKeyPanel.style.display = 'none';
+  }
+
+  autoKeyCloseBtn.onclick = autoKeyClose;
+
+  autoKeySwcKfBtn.onclick = () => {
+    autoKeyInputType = 'font';
+    autoKeyInputFont.style.display = '';
+    autoKeyInputText.style.display = 'none';
+    autoKeyPreviewBtn.style.display = 'none';
+    autoKeyPreview.style.display = 'none';
+    autoKeySwcKfBtn.classList.add('enable');
+    autoKeySwcPtBtn.classList.remove('enable');
+    autoKeyInputFont.classList.add(keyLogFontClass);
+    autoKeyInputFont.focus();
+  }
+
+  autoKeySwcPtBtn.onclick = () => {
+    autoKeyInputType = 'text';
+    autoKeyInputFont.style.display = 'none';
+    autoKeyInputText.style.display = '';
+    autoKeyPreviewBtn.style.display = '';
+    autoKeyPreview.style.display = '';
+    autoKeySwcKfBtn.classList.remove('enable');
+    autoKeySwcPtBtn.classList.add('enable');
+    autoKeyInputText.focus();
+  }
+
+  const parseTextKey = text => {
+    const mutiPattern = /{.*?(\d+).*?((\[.*?])+).*?}/g;
+    return text.replace(mutiPattern, (match, p1, p2) => {
+      return p2.repeat(parseInt(p1));
+    }).match(/(\[.*?])/g);
+  }
+
+  autoKeyPreviewBtn.onclick = async () => {
+    const text = autoKeyInputText.innerText.trim();
+    const keylog = parseTextKey(text);
+    if (!keylog) {
+      return;
+    }
+    autoKeyPreview.innerText = keylog.map(k => keyLogTextMap[k]).join('');
+  }
+
+  const autoKeyRunText = () => {
+    const text = autoKeyInputText.innerText.trim();
+    const keylog = parseTextKey(text);
+    if (!keylog) {
+      return;
+    }
+    autoKeyClose();
+    intervalPressKey(keylog);
+  }
+
+  const autoKeyRunFont = async () => {
+    const text = autoKeyInputFont.innerText.trim();
+    const keylog = [];
+    for (const c of text) {
+      const key = keyLogFontMap[c];
+      if (key && key[0]) {
+        keylog.push(key[0]);
+      }
+    }
+    autoKeyClose();
+    await intervalPressKey(keylog);
+  }
+
+  autoKeyRunBtn.onclick = () => {
+    if (autoKeyInputType === 'font') {
+      autoKeyRunFont();
+    } else {
+      autoKeyRunText();
+    }
+  }
+
+  popupDisplayBtn.onclick = () => {
+    if (!ramLoaded) {
+      return;
+    }
+    if (popupDispalayWindow && !popupDispalayWindow.closed) {
+      popupDispalayWindow.focus();
+      return;
+    }
+    const width = 280 * 3;
+    const height = 106 * 3;
+    const left = window.innerWidth + 20;
+    popupDispalayWindow = window.open('screen.html', 'Popup Screen', `width=${width},height=${height},left=${left}`);
+  }
+
+  stopIntervalPressKeyBtn.onclick = () => {
+    window.intervalPressKeyRunning = false;
+  }
+  Object.defineProperty(window, 'intervalPressKeyRunning', {
+    get: () => intervalPressKeyRunning,
+    set: v => {
+      intervalPressKeyRunning = v;
+      if (v) {
+        stopIntervalPressKeyBtn.style.display = '';
+      } else {
+        stopIntervalPressKeyBtn.style.display = 'none';
+      }
+    }
+  })
+
+  const customModelPanelOpen = () => {
+    isEditing = true;
+    settingsPanel.style.display = 'none';
+    customModelPanel.style.display = '';
+  }
+  customModelAddPanelBtn.onclick = customModelPanelOpen;
+
+  customModelCloseBtn.onclick = () => {
+    isEditing = false;
+    customModelPanel.style.display = 'none';
+  }
+
+  let customRom = null;
+  let customFaceSvg = null;
+  let customKeylog = null;
+  let customReadFileCount;
+  customModelInputFiles.onchange = () => {
+    customReadFileCount = 0;
+    const files = customModelInputFiles.files;
+    if (files.length !== 3) {
+      alert(CustomModelAddFileNotMatch.innerText);
+      return;
+    }
+    for (const file of files) {
+      const ext = file.name.split('.').pop();
+      if (ext === 'bin' || ext === 'dat') {
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+          customRom = new Uint8Array(fileReader.result);
+          customReadFileCount++;
+        }
+        fileReader.readAsArrayBuffer(file);
+      } else if (ext === 'svg') {
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+          customFaceSvg = 'data:image/svg+xml,' + encodeURIComponent(fileReader.result);
+          customReadFileCount++;
+        }
+        fileReader.readAsText(file);
+      } else if (ext === 'json') {
+        const fileReader = new FileReader();
+        fileReader.onload = () => {
+          customKeylog = JSON.parse(fileReader.result);
+          customReadFileCount++;
+        }
+        fileReader.readAsText(file);
+      }
+    }
+  }
+
+  customModelAddBtn.onclick = async () => {
+    const model = customModelInputModelId.value.trim();
+    if (!model || (!model.startsWith('EY') && !model.startsWith('CY')) || model.length < 5) {
+      customModelInputModelId.focus();
+      return;
+    }
+    const modelName = customModelInputModelName.value.trim();
+    if (!modelName) {
+      customModelInputModelName.focus();
+      return;
+    }
+    if (customReadFileCount !== 3 || !customRom || !customFaceSvg || !customKeylog) {
+      alert(CustomModelAddFileNotMatch.innerText);
+      return;
+    }
+    const timestamp = (new Date().getTime()).toString();
+    const customKey = `custom-model-${timestamp}`;
+    const customModelInfo = {
+      key: timestamp,
+      modelId: model,
+      modelName: modelName,
+    }
+    await localforage.setItem(`${customKey}-info`, customModelInfo);
+    await localforage.setItem(`${customKey}-rom`, customRom);
+    await localforage.setItem(`${customKey}-face`, customFaceSvg);
+    await localforage.setItem(`${customKey}-keylog`, customKeylog);
+    alert(CustomModelAddSuccess.innerText);
+    location.replace(`index.html?model=${model}&custom_model=${timestamp}`);
+  }
+
+  const toggleMenu = () => {
+    menu.classList.toggle('menu-active');
+    menuContainer.classList.toggle('menu-active');
+  }
+  menuContainer.onclick = menuBtn.onclick = toggleMenu;
+
+  menuModelSwitchBtn.onclick = () => {
+    toggleMenu();
+    modelSwitchBtn.click();
+  }
+
+  menuScreenshotBtn.onclick = () => {
+    toggleMenu();
+    screenshotBtn.click();
+  }
+
+  menuPopupDisplayBtn.onclick = () => {
+    toggleMenu();
+    popupDisplayBtn.click();
+  }
+
+  menuKeylogBtn.onclick = () => {
+    toggleMenu();
+    keyLogBtn.click();
+  }
+
+  menuAutoKeyBtn.onclick = () => {
+    toggleMenu();
+    autoKeyBtn.click();
+  }
+
+  menuExportQrBtn.onclick = async () => {
+    toggleMenu();
+    await _sleep(200);
+    exportQrBtn.click();
+  }
+
+  menuHexEditorBtn.onclick = async () => {
+    toggleMenu();
+    await _sleep(200);
+    hexEditorBtn.click();
+  }
+
+  menuSettingBtn.onclick = () => {
+    toggleMenu();
+    settingsBtn.click();
+  }
+
+  const hudIconResize = (size) => {
+    const oldStyle = document.getElementById('hudIconResize');
+    if (oldStyle) {
+      oldStyle.remove();
+    }
+    const newStyle = document.createElement('style');
+    newStyle.id = 'hudIconResize';
+    newStyle.innerHTML = `
+      .hud-icon {
+        width: ${size}px;
+        height: ${size}px;
+      }
+      #infoOutput {
+        height: ${size}px;
+      }
+      #hud a {
+        height: ${size}px;
+      }
+      #hud input, #infoOutput.keylog  {
+        font-size: max(${size - 8}px, 1rem);
+      }
+    `;
+    document.head.appendChild(newStyle);
+  }
+
+  const hudIconCus = (value) => {
+    const show = JSON.parse(value);
+    document.querySelectorAll('.hud-btn').forEach((icon) => {
+      if (show.includes(icon.id)) {
+        icon.style.display = '';
+      } else {
+        icon.style.display = 'none';
+      }
+    })
+    hud.style.display = '';
+  }
+
+  hudIconResize(emuSetting.getSettingValue('menuBarIconSize'));
+  hudIconCus(emuSetting.getSettingValue('menuBarIconCus'));
+  i18n();
+  init();
+</script>
+<script>
+  const BUILD_ID = "DEV";
+  build.innerHTML = `(Build ${BUILD_ID})`;
+</script>
+</html>

@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hex Editor - CADUO</title>
+    <link rel="stylesheet" href="./lib/font.css">
+</head>
+<style>
+    body {
+        font-family: Consolas, monospace;
+        overflow-y: hidden;
+    }
+
+    #hexTableArea {
+        height: 80vh;
+        overflow-y: hidden;
+        display: flex;
+        flex-direction: row;
+        user-select: none;
+    }
+
+    #hexTableMain {
+        min-width: 44em;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #hexTableScrollbar {
+        width: 10px;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 0.2em;
+    }
+
+    #scrollThumb {
+        width: 10px;
+        background-color: #aaa;
+        border-radius: 0.2em;
+        position: relative;
+        cursor: pointer;
+        left: 0;
+    }
+
+    #hexTableHead {
+        display: flex;
+        position: sticky;
+        top: 0;
+        height: 1.3em;
+        background-color: #fff;
+    }
+
+    #hexTableBody {
+        display: flex;
+        position: sticky;
+        top: 1.3em;
+        background-color: #fff;
+    }
+
+    #hexTableHeadHex, #hexTableBodyHex {
+        margin-right: 0.5em;
+    }
+
+    .head {
+        color: #0000bf;
+        margin-bottom: 0.3em;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .line {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .content {
+        height: 1.2em;
+        cursor: text;
+    }
+
+    .offset {
+        flex: 0 0 5em;
+        color: #0000bf;
+    }
+
+    .hex {
+        /* 25=16*2+0.5*2 */
+        /* 0.5 为每8个的间距 */
+        flex: 0 0 25em;
+    }
+
+    /* .hex.line 子元素的每第8个*/
+    .hex.line :nth-child(8n) {
+        /* 右侧增大距离 */
+        padding-right: 0.5em;
+    }
+
+    .hex.content {
+        flex: 0 0 1.5em;
+        text-align: center;
+    }
+
+    .ascii {
+        /* 11.2=16*0.7 */
+        flex: 0 0 11.2em;
+    }
+
+    .ascii.content {
+        flex: 0 0 0.7em;
+        text-align: center;
+    }
+
+    .ascii.content span {
+        transform: scale(0.9);
+        display: block;
+    }
+
+    .ascii.content.CY {
+        font-family: 'CASIO-CY-Display' !important;
+    }
+
+    .ascii.content.EY {
+        font-family: 'CASIO-EY-Display-Font' !important;
+    }
+
+    @keyframes flash {
+        from {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+        to {
+            background-color: rgba(0, 0, 0, 0);
+        }
+    }
+
+    @keyframes flash2 {
+        from {
+            background-color: rgba(255, 0, 0, 0.5);
+        }
+        to {
+            background-color: rgba(0, 0, 0, 0);
+        }
+    }
+
+    .flash {
+        animation: flash 1.6s;
+    }
+
+    .flash2 {
+        animation: flash2 1.6s;
+    }
+
+    @keyframes focus {
+        0% {
+            background-color: #7f7fff;
+        }
+        50% {
+            background-color: rgba(0, 0, 0, 0);
+        }
+        100% {
+            background-color: #7f7fff;
+        }
+    }
+
+    .input-focus {
+        background-color: #7f7fff;
+        animation: focus 1s 4;
+        animation-timing-function: steps(1);
+    }
+
+    .input-focus::before {
+        content: '';
+        position: absolute;
+        width: 1px;
+        background-color: red;
+        height: 1.2em;
+    }
+
+    .input-focus-half {
+        background-color: #7f7fff;
+        animation: focus 1s 4;
+        animation-timing-function: steps(1);
+    }
+
+    .input-focus-half::before {
+        content: '';
+        position: absolute;
+        width: 1px;
+        background-color: red;
+        height: 1.2em;
+        transform: translateX(0.5em);
+    }
+
+    .input-focus-inactive {
+        background-color: #9595a6;
+    }
+
+    .user-input {
+        background-color: #fffebb;
+    }
+
+    .cache-input {
+        background-color: #bbfdfc;
+    }
+
+    .cursor-position {
+        background-color: #1bd056;
+    }
+
+    .input-selected {
+        color: #fff;
+        background-color: #3390ff;
+    }
+
+    .input-selected-inactive {
+        background-color: #c8c8c8;
+    }
+</style>
+<style>
+    #hexCommand {
+        overflow: auto;
+        font-size: 0.5em;
+        height: 12em;
+        border: 1px solid #ccc;
+        border-radius: 0.25em;
+    }
+
+    #hexCommandInputArea {
+        width: 100%;
+    }
+
+    #hexCommandInputArea:focus {
+        outline: none;
+    }
+
+    .command-result {
+        border-top: 1px solid #ccc;
+        margin-top: 3px;
+        padding-top: 3px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .command-result:first-child {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+    }
+
+    .command-result:last-child {
+        border-bottom: none;
+        margin-bottom: 10px;
+        padding-bottom: 0;
+    }
+
+    .command-input, .command-output {
+        display: flex;
+    }
+
+    .command-input::before {
+        content: ">";
+        margin-right: 5px;
+        color: green;
+    }
+
+    .command-output::before {
+        content: "<";
+        margin-right: 5px;
+        color: blue;
+    }
+
+</style>
+<style>
+    #hexMenu {
+        height: 1.5em;
+        border: 1px solid #ccc;
+        border-radius: 0.25em;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        padding: 0 10px;
+    }
+
+    .menu.main {
+        cursor: pointer;
+    }
+
+    .menu.main::before, .menu.main::after {
+        content: '|';
+    }
+
+    .menu.main:hover {
+        color: #fff;
+        background-color: #007bff;
+    }
+</style>
+<style>
+    dialog {
+        width: 300px;
+        height: 400px;
+        position: fixed;
+        top: calc(50vh - 400px);
+        border: 1px solid #aaa;
+        border-radius: 5px;
+    }
+
+    .dialog {
+        width: inherit;
+        height: inherit;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .dialog .content {
+        height: 330px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .title-bar {
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid;
+        font-weight: bold;
+    }
+
+    .dialog .close {
+        cursor: pointer;
+    }
+
+    .dialog .button {
+        margin: 2px 10px;
+        padding: 5px 10px;
+        border: 1px solid #aaa;
+        border-radius: 5px;
+        cursor: pointer;
+        user-select: none;
+        justify-content: center;
+        align-items: center;
+        display: flex;
+        transition: background-color 0.2s;
+    }
+
+    .dialog .button:hover {
+        background-color: #eee;
+    }
+
+    .dialog .label, .dialog .title {
+        margin-top: 10px;
+        user-select: none;
+        cursor: default;
+    }
+
+    .title-bar .title {
+        margin-top: 0;
+    }
+
+    .dialog .radio {
+        display: flex;
+    }
+
+    .dialog .input {
+        display: flex;
+        justify-content: space-evenly;
+    }
+
+    .dialog input[type="text"], .dialog input[type="number"] {
+        width: 90%;
+        font-family: Consolas, monospace;
+        border: 1px solid #aaa;
+        border-radius: 0;
+        font-size: 1em;
+    }
+
+    .dialog input[type="text"]:focus, .dialog input[type="number"]:focus {
+        outline: 1px solid #aaa;
+    }
+</style>
+<style>
+    .context-menu {
+        display: none;
+        position: absolute;
+        background-color: #fff;
+        border: 1px solid #ccc;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .context-menu-item {
+        padding: 8px 16px;
+        cursor: pointer;
+    }
+
+    .context-menu-item:hover {
+        background-color: #f2f2f2;
+    }
+
+    .context-menu-item.hidden {
+        display: none;
+    }
+</style>
+<body>
+<div id="contextMenu" class="context-menu">
+    <div class="context-menu-item" id="contextMenuCopy">Copy</div>
+    <div class="context-menu-item" id="contextMenuPaste">Paste</div>
+</div>
+<div class="main">
+    <div id="waiting">
+        <div data-i18n-tag="WaitingHexLoading">Hex Editor is Loading...</div>
+        <div id="wrong" style="display: none; color: red;">
+            <div data-i18n-tag="WaitingReopen">Something went wrong, please reopen from the Emulator Page</div>
+            <div data-i18n-tag="WaitingDontOpen"> Don't open manually by URL</div>
+        </div>
+    </div>
+    <div id="hex" style="display: none;">
+        <div id="hexMenu">
+            <div class="menu main" id="menuOpen">Open</div>
+            <div class="menu main" id="menuSave">Save</div>
+            <div class="menu main" id="menuSearch">Search</div>
+        </div>
+        <div id="hexTableArea">
+            <div id="hexTableMain">
+                <div id="hexTableHead">
+                    <div id="hexTableHeadOffset" class="offset head">
+                        <div class="content">Offset</div>
+                    </div>
+                    <div id="hexTableHeadHex" class="hex head">
+                    </div>
+                    <div id="hexTableHeadAscii" class="ascii head">
+                        <div class="content">ASCII</div>
+                    </div>
+                </div>
+                <div id="hexTableBody">
+                    <div id="hexTableBodyOffset" class="offset body">
+                    </div>
+                    <div id="hexTableBodyHex" class="hex body">
+                    </div>
+                    <div id="hexTableBodyAscii" class="ascii body">
+                    </div>
+                </div>
+            </div>
+            <div id="hexTableScrollbar">
+                <div id="scrollThumb" style="top: 0;"></div>
+            </div>
+        </div>
+        <div id="hexCommand">
+            <div class="command-result">
+                <div class="command-input">
+                    <div class="area"><span data-i18n-tag="HexCommandWelcome">Welcome to Hex Editor!</span>
+                    </div>
+                </div>
+                <div class="command-output">
+                    <div class="area"><span data-i18n-tag="HexCommandHelp">Type "help" to get help</span></div>
+                </div>
+            </div>
+            <div id="hexCommandInput" class="command-result">
+                <div class="command-input">
+                    <div id="hexCommandInputArea" contenteditable="plaintext-only"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <dialog id="searchDialog">
+        <div class="dialog">
+            <div class="title-bar">
+                <div class="title">Search</div>
+                <div class="close">[×]</div>
+            </div>
+            <div class="content">
+                <div class="label">Type:</div>
+                <div class="input">
+                    <div class="radio">
+                        <input type="radio" name="searchType" id="searchTypeHex" value="hex" checked>
+                        <label for="searchTypeHex">Hex</label>
+                    </div>
+                    <div class="radio">
+                        <input type="radio" name="searchType" id="searchTypeAscii" value="ascii">
+                        <label for="searchTypeAscii">ASCII</label>
+                    </div>
+                </div>
+                <div class="label">Text:</div>
+                <div class="input">
+                    <label for="searchText"></label><input type="text" id="searchText">
+                </div>
+                <div class="label">Max Results Count:</div>
+                <div class="input">
+                    <label for="searchMax"></label><input type="number" id="searchMax" value="20">
+                </div>
+            </div>
+            <div class="confirm button" id="searchConfirm">Search</div>
+        </div>
+    </dialog>
+</div>
+</body>
+<script>
+  setTimeout(() => {
+    wrong.style.display = 'block';
+  }, 3000)
+  const i18n = () => {
+    const i18n_zh = {
+      "WaitingHexLoading": "16进制编辑器正在加载……",
+      "WaitingReopen": "出错了，请从模拟器页面重新打开",
+      "WaitingDontOpen": "请勿手动输入URL直接打开"
+    };
+
+    const i18nLang = {
+      "zh": i18n_zh,
+    };
+    const langCode = localStorage.getItem('language') || (navigator.language || navigator.userLanguage).split('-')[0];
+    const i18nData = i18nLang[langCode];
+    if (!i18nData) {
+      return;
+    }
+    document.getElementsByTagName('html')[0].setAttribute('lang', langCode);
+    document.querySelectorAll('[data-i18n-tag]').forEach(el => {
+      const tag = el.getAttribute('data-i18n-tag');
+      const text = i18nData[tag];
+      if (text) {
+        el.innerText = text;
+      }
+    });
+  }
+  i18n();
+</script>
+<script>
+  class CYConfig {
+    constructor() {
+      this.ES_USRDATA_TOPADR = 0x0D000;
+      this.ES_USRDATA_LEN = 0x02000;
+      this.dataStart = this.ES_USRDATA_TOPADR;
+      this.dataLength = this.ES_USRDATA_LEN;
+      this.codeStart = 0;
+      this.codeLength = 0x03ffff + 1;
+
+      this.userInputStart = this.ES_USRDATA_TOPADR + 0x18 * 0x10;
+      this.userInputEnd = this.userInputStart + 199 - 1;
+      this.cacheInputStart = this.userInputEnd + 1 + 1;
+      this.cacheInputEnd = this.cacheInputStart + 199 - 1;
+
+      this.cursor = this.userInputStart - 0x2B;
+      this.ES_NAME_ADR = 0x3FFEE;
+      this.romInfoStart = this.ES_NAME_ADR;
+    }
+  }
+
+  class EYConfig {
+    constructor() {
+      this.ES_USRDATA_TOPADR = 0x09000;
+      this.ES_USRDATA_LEN = 0x04000;
+      this.dataStart = this.ES_USRDATA_TOPADR;
+      this.dataLength = this.ES_USRDATA_LEN;
+      this.codeStart = 0;
+      this.codeLength = 0x07ffff + 1;
+
+      this.userInputStart = this.ES_USRDATA_TOPADR + 0x8 + 0x26 * 0x10;
+      this.userInputEnd = this.userInputStart + 199 - 1;
+      this.cacheInputStart = this.userInputEnd + 1 + 1;
+      this.cacheInputEnd = this.cacheInputStart + 199 - 1;
+
+      this.cursor = this.userInputStart - 0x83;
+
+      this.ES_NAME_ADR = 0x71FEE;
+      this.romInfoStart = this.ES_NAME_ADR;
+    }
+  }
+
+  const asciiMap = (() => {
+    const unicodeOffset = 0xE000;
+    const start = 0x10;
+    const end = 0xEF;
+    let rawMap = [
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+      "𝒙", "𝒚", "𝒛", "…", "▲", "▼", "▸", "₋", "$", "◁", "&", "𝑡", "ᴛ", "ₜ", "ₕ", "₅",
+      " ", "!", "\"", "#", "×", "%", "÷", "'", "(", ")", "⋅", "+", ",", "-", ".", "/",
+      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?",
+      "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+      "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "▫", "]", "^", "_",
+      "−", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+      "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "├",
+      "𝒊", "𝒆", "", "", "", "°", "ʳ", "ᵍ", "∠", "", "", "", "", "→", "∏", "⇒",
+      "", "", "", "⌟", "≤", "≠", "≥", "", "√", "∫", "ᴀ", "ʙ", "ᴄ", "ₙ", "▶", "◀",
+      "⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹", "", "", "", "₍", "₎", "",
+      "₀", "₁", "₂", "", "ꜰ", "ɴ", "ᴘ", "", "𝗔", "𝗕", "𝗖", "𝗗", "𝗘", "𝗙", "𝗣", "▷",
+      "∑", "𝛼", "𝛾", "𝜀", "𝜃", "𝜆", "𝜇", "𝜋", "𝜎", "𝜙", "ℓ", "ℏ", "▮", "▯", "₃", "＿",
+      "𝐟", "𝐩", "𝐧", "𝝁", "𝐦", "𝐤", "𝐌", "𝐆", "𝐓", "𝐏", "𝐄", "𝐹", "ₚ", "ₑ", "ᴊ", "ᴋ",
+      "", "", "₉", "Å", "ₘ", "ɪ", "₄", "", "", "∟", "⟲", "↻", "ⁿ", "", "", "",
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+    ];
+    for (let i = start; i < end + 1; i++) {
+      if (rawMap[i] === "") {
+        rawMap[i] = String.fromCharCode(unicodeOffset + i);
+      }
+    }
+    return rawMap;
+  })();
+
+  const hexStr = (hex, pad = 2) => {
+    if (typeof hex === 'undefined') {
+      return '';
+    }
+    return hex.toString(16).toUpperCase().padStart(pad, '0');
+  }
+
+  const asciiStr = (hex) => {
+    if (typeof hex === 'undefined') {
+      return '';
+    }
+    const ascii = asciiMap[hex];
+    return ascii.length > 0 ? ascii : '.';
+  }
+
+  const flashDOM = (dom) => {
+    const c1 = 'flash';
+    const c2 = 'flash2';
+    if (dom.classList.contains(c1)) {
+      dom.classList.remove(c1);
+      dom.classList.add(c2);
+    } else if (dom.classList.contains(c2)) {
+      dom.classList.remove(c2);
+      dom.classList.add(c1);
+    } else {
+      dom.classList.add(c1);
+    }
+  }
+</script>
+<script>
+  const sim = window.opener.sim;
+  const hexType = window.opener.hexEditorType
+  const readData = window.opener.hexEditorRead;
+  const writeData = window.opener.hexEditorWrite;
+  let config;
+  let start;
+  let length;
+  let data;
+  let lastData;
+  let ready = false;
+
+  let tableAreaHeight = 0;
+  let headHeight = 0;
+  let itemHeight = 0;
+  let rowCount = 0;
+  let totalRowCount = 0;
+  let modelType;
+  let dataLength = 0;
+
+  let columnCount = 0x10;
+  let startOffset = 0;
+  let maxOffset;
+
+  let subData;
+
+  let scrollThumbHeight;
+  let scrolled = false;
+  let isThumbDragging = false;
+
+  let focusIndex = 0;
+  let focusType = 'hex';
+  let inputPos = 0;
+
+  let isSelecting = false;
+  let isSelected = false;
+  let selectStart = -1;
+  let selectEnd = -1;
+
+  const init = async () => {
+    waiting.style.display = 'none'
+    hex.style.display = 'block'
+
+    modelType = await sim._modelType
+    config = modelType === 'CY' ? new CYConfig() : new EYConfig()
+    if (hexType === 'ram') {
+      start = config.dataStart
+      length = config.dataLength
+    } else if (hexType === 'rom') {
+      start = config.codeStart
+      length = config.codeLength
+    } else {
+      throw new Error('Unknown hex type')
+    }
+    data = new Uint8Array(length)
+    lastData = new Uint8Array(length)
+
+    hexTableHeadHex.innerHTML = '';
+    const head = document.createElement('div');
+    for (let i = 0; i < columnCount; i++) {
+      head.classList.add('hex', 'line');
+      const headContent = document.createElement('div');
+      headContent.classList.add('hex', 'content');
+      headContent.innerText = hexStr(i);
+      head.appendChild(headContent);
+    }
+    hexTableHeadHex.appendChild(head);
+
+    startOffset = start;
+    dataLength = length;
+    totalRowCount = Math.ceil(dataLength / columnCount);
+    itemHeight = document.querySelector('.content').clientHeight
+
+    tableAreaHeight = hexTableArea.clientHeight;
+    headHeight = hexTableHead.clientHeight;
+    rowCount = Math.floor((tableAreaHeight - headHeight) / itemHeight);
+    maxOffset = Math.floor((start + dataLength - rowCount * columnCount / 2) / columnCount) * columnCount
+
+    scrollThumbHeight = Math.floor(tableAreaHeight / totalRowCount * rowCount);
+    scrollThumbHeight = Math.max(scrollThumbHeight, 20)
+    scrollThumb.style.height = scrollThumbHeight + 'px';
+
+    hexTableBodyOffset.innerHTML = '';
+    hexTableBodyHex.innerHTML = '';
+    hexTableBodyAscii.innerHTML = '';
+    for (let i = 0; i < rowCount; i++) {
+      const offset = document.createElement('div');
+      offset.classList.add('offset', 'line');
+      const offsetContent = document.createElement('div');
+      offsetContent.id = 'offset-' + hexStr(i, 3);
+      offsetContent.classList.add('offset', 'content');
+      offsetContent.innerHTML = hexStr(0, 8);
+      offset.appendChild(offsetContent);
+      hexTableBodyOffset.appendChild(offset);
+
+      const hex = document.createElement('div');
+      hex.classList.add('hex', 'line');
+      const ascii = document.createElement('div');
+      ascii.classList.add('ascii', 'line');
+      for (let j = 0; j < columnCount; j++) {
+        const hexContent = document.createElement('div');
+        hexContent.id = 'hex-' + hexStr(i, 3) + '-' + hexStr(j, 2);
+        hexContent.classList.add('hex', 'content');
+        const hexSpan = document.createElement('span');
+        hexSpan.innerText = hexStr(0);
+        hexContent.appendChild(hexSpan);
+        hex.appendChild(hexContent);
+
+        const asciiContent = document.createElement('div');
+        asciiContent.id = 'ascii-' + hexStr(i, 3) + '-' + hexStr(j, 2);
+        asciiContent.classList.add('ascii', 'content', modelType);
+        const asciiSpan = document.createElement('span');
+        asciiSpan.innerText = asciiStr(0);
+        asciiContent.appendChild(asciiSpan);
+        ascii.appendChild(asciiContent);
+      }
+      hexTableBodyHex.appendChild(hex);
+      hexTableBodyAscii.appendChild(ascii);
+    }
+
+    subData = new Uint8Array(columnCount * rowCount);
+    await updateData(true);
+    updateContent();
+
+    ready = true;
+  }
+
+  onresize = () => {
+    ready = false;
+  };
+
+  const updateData = async (all = false) => {
+    lastData.set(data);
+    if (all) {
+      await readData(start, length, data);
+    } else {
+      const newOffset = start + length - columnCount * rowCount;
+      const offset = startOffset >= newOffset ? newOffset : startOffset;
+      await readData(offset, columnCount * rowCount, subData);
+      data.set(subData, offset - start);
+    }
+  }
+
+  const updateContent = () => {
+    const offset = startOffset - start;
+    const cursorIndex = data[config.cursor - start] + config.userInputStart - start;
+    for (let i = 0; i < rowCount; i++) {
+      const rowIndex = hexStr(i, 3);
+      const offsetEl = document.getElementById('offset-' + rowIndex);
+      const offsetIndex = startOffset + (i * columnCount);
+      if (offsetIndex < start + dataLength) {
+        offsetEl.innerHTML = hexStr(offsetIndex, 8);
+      } else {
+        offsetEl.innerHTML = '';
+      }
+
+      for (let j = 0; j < columnCount; j++) {
+        const colIndex = hexStr(j, 2);
+        const hexEl = document.getElementById('hex-' + rowIndex + '-' + colIndex);
+        const asciiEl = document.getElementById('ascii-' + rowIndex + '-' + colIndex);
+        const index = offset + i * columnCount + j;
+        const hexElChild = hexEl.children[0];
+        const asciiElChild = asciiEl.children[0];
+        if (index < dataLength) {
+          hexEl.dataset.index = `${index}`;
+          asciiEl.dataset.index = `${index}`;
+          hexElChild.innerHTML = hexStr(data[index]);
+          asciiElChild.innerHTML = asciiStr(data[index]);
+
+          const isUserInput = hexType === 'ram' && config.userInputStart - start <= index && index <= config.userInputEnd - start;
+          hexEl.classList.toggle('user-input', isUserInput);
+          asciiEl.classList.toggle('user-input', isUserInput);
+
+          const isCacheInput = hexType === 'ram' && config.cacheInputStart - start <= index && index <= config.cacheInputEnd - start;
+          hexEl.classList.toggle('cache-input', isCacheInput);
+          asciiEl.classList.toggle('cache-input', isCacheInput);
+
+          const isCursor = hexType === 'ram' && index === cursorIndex;
+          hexEl.classList.toggle('cursor-position', isCursor);
+          asciiEl.classList.toggle('cursor-position', isCursor);
+
+          const isSelectedEl = focusType.startsWith('select')
+            && selectEnd !== -1 && selectEnd !== selectStart
+            && Math.min(selectStart, selectEnd) <= index && index <= Math.max(selectStart, selectEnd);
+          if (isSelectedEl) {
+            const isSelectHex = focusType === 'select-hex';
+            hexEl.classList.toggle('input-selected', isSelectedEl && isSelectHex);
+            hexEl.classList.toggle('input-selected-inactive', isSelectedEl && !isSelectHex);
+            asciiEl.classList.toggle('input-selected', isSelectedEl && !isSelectHex);
+            asciiEl.classList.toggle('input-selected-inactive', isSelectedEl && isSelectHex);
+          } else {
+            hexEl.classList.remove('input-selected', 'input-selected-inactive');
+            asciiEl.classList.remove('input-selected', 'input-selected-inactive');
+          }
+
+          if (focusIndex === index && (focusType === 'hex' || focusType === 'ascii')) {
+            const isHex = focusType === 'hex';
+            hexElChild.classList.toggle('input-focus', isHex && inputPos === 0);
+            hexElChild.classList.toggle('input-focus-half', isHex && inputPos === 1);
+            asciiElChild.classList.toggle('input-focus-inactive', isHex);
+
+            hexElChild.classList.toggle('input-focus-inactive', !isHex);
+            asciiElChild.classList.toggle('input-focus', !isHex);
+
+            asciiElChild.classList.remove('flash', 'flash2');
+            hexElChild.classList.remove('flash', 'flash2');
+          } else {
+            hexElChild.classList.remove('input-focus', 'input-focus-inactive', 'input-focus-half');
+            asciiElChild.classList.remove('input-focus', 'input-focus-inactive');
+          }
+
+          if (data[index] !== lastData[index] && !scrolled) {
+            flashDOM(hexElChild);
+            flashDOM(asciiElChild);
+          }
+
+          if (scrolled) {
+            hexElChild.classList.remove('flash', 'flash2');
+            asciiElChild.classList.remove('flash', 'flash2');
+          }
+        } else {
+          hexEl.className = 'hex content';
+          hexElChild.className = '';
+          hexElChild.innerHTML = '';
+          hexEl.dataset.index = '-1';
+
+          asciiEl.className = `ascii content ${modelType}`;
+          asciiElChild.className = '';
+          asciiElChild.innerHTML = '';
+          asciiEl.dataset.index = '-1';
+        }
+      }
+    }
+  }
+
+  const setNewStartOffset = (newOffset) => {
+    if (newOffset < start) {
+      newOffset = start;
+    }
+    if (newOffset > maxOffset) {
+      newOffset = maxOffset;
+    }
+    if (newOffset === startOffset) {
+      return;
+    }
+    scrolled = true;
+    startOffset = newOffset;
+    const scrollThumbTop = Math.floor((startOffset - start) / columnCount / totalRowCount * tableAreaHeight);
+    scrollThumb.style.top = Math.min(scrollThumbTop, tableAreaHeight - scrollThumbHeight) + 'px';
+    setTimeout(() => {
+      scrolled = false;
+    }, 500);
+  }
+
+  const setNewFocusIndex = (newIndex, forceTop = false) => {
+    if (newIndex < 0) {
+      newIndex = 0;
+    } else if (newIndex >= dataLength) {
+      newIndex = dataLength - 1;
+    }
+
+    focusIndex = newIndex;
+    const newStartOffset = Math.floor((focusIndex + start) / columnCount) * columnCount;
+    if (newStartOffset < startOffset || forceTop) {
+      setNewStartOffset(newStartOffset);
+      return;
+    }
+
+    const heightOffset = (rowCount - 1) * columnCount;
+    if (newStartOffset > startOffset + heightOffset) {
+      setNewStartOffset(newStartOffset - heightOffset);
+    }
+  }
+
+  const handleWheel = (e) => {
+    let newOffset = startOffset + Math.floor(e.deltaY / itemHeight) * columnCount;
+    setNewStartOffset(newOffset);
+  }
+
+  hexTableArea.addEventListener('wheel', (e) => {
+    handleWheel(e);
+  }, { passive: true });
+
+  scrollThumb.onmousedown = (e) => {
+    isThumbDragging = true;
+    const startY = e.clientY;
+    const startTop = parseInt(scrollThumb.style.top);
+
+    const handleMouseMove = (e) => {
+      const delta = e.clientY - startY;
+      let newTop = startTop + delta;
+      if (newTop < 0) {
+        newTop = 0;
+      }
+      if (newTop > tableAreaHeight - scrollThumbHeight) {
+        newTop = tableAreaHeight - scrollThumbHeight;
+      }
+      let newOffset = Math.floor(newTop / (tableAreaHeight - scrollThumbHeight) * totalRowCount) * columnCount + start;
+      setNewStartOffset(newOffset);
+    }
+
+    const handleMouseUp = () => {
+      isThumbDragging = false;
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }
+
+  const _getHexTableInfo = (e) => {
+    const clickedEl = e.target;
+    let index, type;
+    if (clickedEl.dataset.index) {
+      index = parseInt(clickedEl.dataset.index);
+      type = clickedEl.id.startsWith('hex') ? 'hex' : 'ascii';
+    } else if (clickedEl.parentElement.dataset.index) {
+      index = parseInt(clickedEl.parentElement.dataset.index);
+      type = clickedEl.parentElement.id.startsWith('hex') ? 'hex' : 'ascii';
+    } else {
+      index = -1;
+      type = 'other';
+    }
+    return { index, type };
+  }
+
+  const handleHexTableClick = (e) => {
+    inputPos = 0;
+    if (isSelected) {
+      isSelected = false;
+      return;
+    }
+    const { index, type } = _getHexTableInfo(e);
+    focusIndex = index;
+    focusType = type;
+  }
+
+  hexTableBodyHex.onclick = hexTableBodyAscii.onclick = handleHexTableClick;
+
+  const handleHexTableMousedown = (e) => {
+    if (e.button === 2) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
+    inputPos = 0;
+    isSelecting = true;
+    const { index, type } = _getHexTableInfo(e);
+    selectStart = index;
+    selectEnd = selectStart;
+    const selectType = `select-${type}`;
+    focusType = selectType;
+
+    const handleMouseMove = (e) => {
+      const { index, type } = _getHexTableInfo(e);
+      if (index === selectStart || `select-${type}` !== selectType) {
+        selectEnd = -1;
+        return;
+      }
+      selectEnd = index;
+    }
+
+    const handleMouseUp = () => {
+      isSelecting = false;
+      if (selectEnd !== -1 && selectEnd !== selectStart) {
+        focusIndex = selectEnd;
+        focusType = selectType;
+        isSelected = true;
+      } else {
+        isSelected = false;
+      }
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    }
+
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('mouseup', handleMouseUp);
+  }
+
+  hexTableBodyHex.onmousedown = hexTableBodyAscii.onmousedown = handleHexTableMousedown;
+
+  const showContextMenu = (x, y) => {
+    const isSelect = focusType.startsWith('select');
+    contextMenuPaste.classList.toggle('hidden', isSelect);
+
+    contextMenu.style.left = x + 'px';
+    contextMenu.style.top = y + 'px';
+    contextMenu.style.display = 'block';
+  }
+
+  const hideContextMenu = () => {
+    contextMenu.style.display = 'none';
+  }
+
+  const handleHexTableContextmenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!focusType.startsWith('select')) {
+      handleHexTableClick(e);
+    }
+    showContextMenu(e.clientX, e.clientY);
+  }
+
+  hexTableBodyHex.oncontextmenu = hexTableBodyAscii.oncontextmenu = handleHexTableContextmenu;
+  document.addEventListener('click', hideContextMenu);
+  contextMenuCopy.onclick = () => {
+    handleCopy();
+  };
+  contextMenuPaste.onclick = () => {
+    handlePaste();
+  };
+
+  const handleInputKeydown = async (e) => {
+    const hexCode = [...'0123456789ABCDEFabcdef'];
+    if (focusType === 'hex' && !hexCode.includes(e.key)) {
+      return;
+    }
+    const raw = new Uint8Array(1);
+    let val;
+    let increase = 1;
+    if (focusType === 'hex') {
+      await readData(focusIndex + start, 1, raw);
+      val = parseInt(e.key, 16);
+      if (inputPos === 0) {
+        val = (val << 4) + (raw[0] & 0x0F);
+        inputPos = 1;
+        increase = 0;
+      } else if (inputPos === 1) {
+        val = val + (raw[0] & 0xF0);
+        inputPos = 0;
+      }
+    } else if (focusType === 'ascii') {
+      val = asciiMap.indexOf(e.key);
+    }
+    raw[0] = val;
+    await writeData(focusIndex + start, 1, raw);
+    setNewFocusIndex(focusIndex + increase);
+  }
+
+  const handleNavigationKeydown = e => {
+    let deltaI = 0;
+    if (e.key === 'ArrowUp') {
+      deltaI = -columnCount;
+    } else if (e.key === 'ArrowDown') {
+      deltaI = columnCount;
+    } else if (e.key === 'ArrowLeft' || e.key === 'Backspace') {
+      if (inputPos === 1) {
+        inputPos = 0;
+        return;
+      }
+      inputPos = 1;
+      deltaI = -1;
+    } else if (e.key === 'ArrowRight') {
+      if (inputPos === 0) {
+        inputPos = 1;
+        return;
+      }
+      inputPos = 0;
+      deltaI = 1;
+    } else if (e.key === 'PageUp') {
+      deltaI = -columnCount * rowCount;
+    } else if (e.key === 'PageDown') {
+      deltaI = columnCount * rowCount;
+    } else if (e.key === 'Home') {
+      deltaI = -focusIndex % columnCount;
+    } else if (e.key === 'End') {
+      deltaI = -focusIndex % columnCount + columnCount - 1;
+    }
+
+    if (deltaI === 0) {
+      return;
+    }
+
+    let index = focusIndex + deltaI;
+
+    index = index < 0 ? 0 : index;
+    index = index >= dataLength ? dataLength - 1 : index;
+
+    setNewFocusIndex(index)
+  }
+
+  const parseHexString = (str) => {
+    if (!str) {
+      return [];
+    }
+    const data = str.match(/[\da-fA-F]{2}/g);
+    if (!data) {
+      return [];
+    }
+    return data.map(v => parseInt(v, 16)).filter(v => v >= 0);
+  }
+
+  const parseAsciiString = (str) => {
+    if (!str) {
+      return [];
+    }
+    return str.split('').map(v => asciiMap.indexOf(v)).filter(v => v >= 0);
+  }
+
+  const handlePaste = async () => {
+    if (focusType !== 'hex' && focusType !== 'ascii') {
+      return;
+    }
+
+    let text;
+    try {
+      text = await navigator.clipboard.readText();
+    } catch (e) {
+      text = prompt('Paste the text manually: ');
+    }
+    if (!text) {
+      return;
+    }
+
+    let data;
+    if (focusType === 'hex') {
+      data = parseHexString(text);
+    } else if (focusType === 'ascii') {
+      data = parseAsciiString(text)
+    }
+    if (data.length === 0) {
+      return;
+    }
+    const paste = new Uint8Array(data);
+    await writeData(focusIndex + start, paste.length, paste);
+    setNewFocusIndex(focusIndex + paste.length)
+  }
+
+  const handleCopy = async () => {
+    const isSelected = focusType.startsWith('select') && selectEnd !== -1 && selectEnd !== selectStart;
+    const isFocus = focusType === 'hex' || focusType === 'ascii';
+    if (!isSelected && !isFocus) {
+      return;
+    }
+    let copy;
+    if (isSelected) {
+      const min = Math.min(selectStart, selectEnd);
+      const max = Math.max(selectStart, selectEnd);
+      const slice = data.slice(min, max + 1);
+      if (focusType === 'select-hex') {
+        copy = [...slice].map(v => hexStr(v, 2)).join(' ');
+      } else if (focusType === 'select-ascii') {
+        copy = [...slice].map(v => asciiStr(v)).join('');
+      }
+    } else if (isFocus) {
+      const slice = data.slice(focusIndex, focusIndex + 1);
+      if (focusType === 'hex') {
+        copy = hexStr(slice[0], 2);
+      } else if (focusType === 'ascii') {
+        copy = asciiStr(slice[0]);
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(copy);
+    } catch (e) {
+      prompt('Copy the text manually: ', copy);
+    }
+  }
+
+  onkeydown = e => {
+    if (focusType === 'other') {
+      return;
+    }
+
+    if (focusType === 'command') {
+      handleCommandKeydown(e);
+      return;
+    }
+
+    if ((e.key === 'v' || e.key === 'V') && e.ctrlKey && !e.shiftKey && !e.altKey) {
+      handlePaste();
+      return;
+    }
+
+    if ((e.key === 'c' || e.key === 'C') && e.ctrlKey && !e.shiftKey && !e.altKey) {
+      handleCopy();
+      return;
+    }
+
+    if (e.key.length === 1) {
+      handleInputKeydown(e);
+      return;
+    }
+
+    const navKey = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'Backspace', 'ArrowRight', 'PageUp', 'PageDown', 'Home', 'End'];
+    if (navKey.includes(e.key)) {
+      handleNavigationKeydown(e);
+      return;
+    }
+  }
+
+  const handleCommand = async (command) => {
+    const parseArgs = (input) => {
+      const args = [];
+      let currentArg = '';
+      let insideQuotes = false;
+
+      for (let i = 0; i < input.length; i++) {
+        const char = input[i];
+
+        if (char === ' ' && !insideQuotes) {
+          if (currentArg !== '') {
+            args.push(currentArg);
+            currentArg = '';
+          }
+        } else if (char === '"') {
+          if (insideQuotes) {
+            args.push(currentArg);
+            currentArg = '';
+          }
+          insideQuotes = !insideQuotes;
+        } else if (char === '\\' && insideQuotes && input[i + 1] === '"') {
+          currentArg += '"';
+          i++;
+        } else {
+          currentArg += char;
+        }
+      }
+
+      if (currentArg !== '') {
+        args.push(currentArg);
+      }
+
+      return args;
+    }
+    const tokens = command.trim().split(/\s+/);
+    const cmd = tokens[0];
+    const args = parseArgs(tokens.slice(1).join(' '));
+
+    if (cmd === 'clear') {
+      const els = document.getElementsByClassName('command-result');
+      for (let i = els.length - 1; i >= 0; i--) {
+        if (els[i].id !== 'hexCommandInput') {
+          els[i].remove();
+        }
+      }
+      hexCommandInputArea.innerHTML = '';
+      return [-1, ''];
+    }
+    if (commandMap.hasOwnProperty(cmd)) {
+      return commandMap[cmd](...args);
+    } else {
+      return [1, `Unknown command: ${cmd}`]
+    }
+  }
+
+  hexCommandInputArea.onfocus = () => {
+    focusType = 'command';
+  }
+
+  let lastCommand = '';
+  const handleCommandKeydown = (e) => {
+    const noneInputKey = ['Enter', 'ArrowUp', 'Escape'];
+    if (!noneInputKey.includes(e.key)) {
+      return;
+    }
+    e.preventDefault();
+    if (e.key === "Enter" && !e.ctrlKey) {
+      const command = hexCommandInputArea.innerText.trim();
+      if (command.length > 0) {
+        handleCommandInput(command);
+        lastCommand = command;
+      }
+    } else if (e.key === "ArrowUp" && hexCommandInputArea.innerText === '') {
+      currentCommand = hexCommandInputArea.innerText;
+      hexCommandInputArea.innerText = lastCommand;
+      const range = document.createRange();
+      const sel = window.getSelection();
+      range.setStart(hexCommandInputArea.childNodes[0], hexCommandInputArea.innerText.length);
+      range.collapse(true);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else if (e.key === "Escape") {
+      hexCommandInputArea.innerText = '';
+    }
+  }
+
+  const addCommandResult = (command, result) => {
+    if (result[0] === -1) {
+      return;
+    }
+    const resultDiv = document.createElement("div");
+    resultDiv.className = "command-result";
+    const inputDiv = document.createElement("div");
+    inputDiv.className = "command-input";
+    inputDiv.innerText = command;
+    const outputDiv = document.createElement("div");
+    outputDiv.className = "command-output";
+    if (result[1] instanceof HTMLElement) {
+      outputDiv.appendChild(result[1]);
+    } else {
+      if (result[0] === 0) {
+        outputDiv.innerHTML = result[1];
+      } else if (result[0] === 1) {
+        outputDiv.innerHTML = `<span class="error">ERROR: </span>${result[1]}`;
+      }
+    }
+    resultDiv.appendChild(inputDiv);
+    resultDiv.appendChild(outputDiv);
+    hexCommand.insertBefore(resultDiv, hexCommandInput);
+    hexCommandInputArea.innerHTML = "";
+    hexCommand.scrollTop = hexCommand.scrollHeight;
+  }
+
+  const handleCommandInput = async (command) => {
+    const result = await handleCommand(command);
+    addCommandResult(command, result);
+  }
+
+  const searchData = async (search, max = 20) => {
+    await updateData(true);
+    const dataToSearch = new Uint8Array(data);
+    const dataLength = dataToSearch.length;
+    const searchLength = search.length;
+    const results = [];
+
+    if (searchLength === 0) {
+      return results;
+    }
+
+    const computePartialMatchTable = (pattern) => {
+      const table = new Array(pattern.length).fill(0);
+      let j = 0;
+      for (let i = 1; i < pattern.length; i++) {
+        while (j > 0 && pattern[i] !== pattern[j]) {
+          j = table[j - 1];
+        }
+        if (pattern[i] === pattern[j]) {
+          j++;
+        }
+        table[i] = j;
+      }
+      return table;
+    }
+
+    const partialMatchTable = computePartialMatchTable(search);
+
+    let i = 0;
+    let j = 0;
+    while (i < dataLength && results.length < max) {
+      if (search[j] === dataToSearch[i]) {
+        j++;
+        i++;
+        if (j === searchLength) {
+          results.push(i - j);
+          j = partialMatchTable[j - 1];
+        }
+      } else {
+        if (j !== 0) {
+          j = partialMatchTable[j - 1];
+        } else {
+          i++;
+        }
+      }
+    }
+
+    return results;
+  }
+
+  const commandMap = (() => {
+    const help = async () => {
+      const div = document.createElement("div");
+      div.innerText = `Commands:
+    help: show this help
+    clear: clear all output
+    sch <hex> [<max?:20>]: search hex value string
+    sca <ascii> [<max?:20>]: search ascii value string
+    goto <hex>: goto hex address
+
+    Use quotes if argument contains spaces.
+    `;
+      return [0, div];
+    }
+    const _searchArray = async (search, type, max) => {
+      max = parseInt(max);
+      if (!max) {
+        max = 20;
+      }
+      const results = await searchData(search, max);
+      const area = document.createElement("div");
+      if (results.length === 0) {
+        area.innerText = 'Not found';
+        return area;
+      }
+      for (let i = 0; i < results.length; i++) {
+        const result = results[i];
+        const a = document.createElement("a");
+        a.href = "javascript:void(0)";
+        const ii = (i + 1).toString().padStart(2, '0');
+        a.innerText = `[${ii}]0x${hexStr(start + result, 8)}`;
+        a.onclick = () => {
+          focusType = type;
+          setNewFocusIndex(result, true);
+        }
+        area.appendChild(a);
+        area.appendChild(document.createTextNode(' '));
+      }
+      if (results.length === max) {
+        const t = document.createTextNode("Max results reached, try to narrow the search.");
+        area.appendChild(t);
+      }
+      return area;
+    }
+    const searchHexText = async (searchText, max) => {
+      const array = parseHexString(searchText)
+      if (array.length === 0) {
+        return [1, 'Invalid hex string'];
+      }
+      return [0, await _searchArray(array, 'hex', max)];
+    }
+    const searchAsciiText = async (searchText, max) => {
+      const array = parseAsciiString(searchText)
+      if (array.length === 0) {
+        return [1, 'Invalid ascii string'];
+      }
+      return [0, await _searchArray(array, 'ascii', max)];
+    }
+    const goto = async (hex) => {
+      if (!hex) {
+        return [1, 'Address not specified'];
+      }
+      const address = parseInt(hex, 16);
+      if (address < start || address >= start + dataLength) {
+        return [1, `Address out of range: 0x${hexStr(address, 8)}`];
+      }
+      focusType = 'hex';
+      hexCommandInputArea.blur()
+      setNewFocusIndex(address - start, true);
+      return [0, document.createElement("div")];
+    }
+
+    return {
+      'help': help,
+      'sch': searchHexText,
+      'sca': searchAsciiText,
+      'goto': goto,
+    };
+  })();
+
+  const closeDialog = (e) => {
+    let dialog = e.target;
+    while (dialog && dialog.tagName !== 'DIALOG') {
+      dialog = dialog.parentElement;
+    }
+    if (dialog) {
+      dialog.close();
+    }
+  }
+
+  document.querySelectorAll(".dialog .close").forEach(el => {
+    el.onclick = closeDialog;
+  });
+
+  menuOpen.onclick = () => {
+    focusType = 'other';
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".bin";
+    input.onchange = () => {
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const data = [...new Uint8Array(reader.result)];
+        const exe = await writeData(start, data.length, data);
+        const fakeCmd = `open-${hexType} ${input.files[0].name}`
+        if (exe === 0) {
+          addCommandResult(fakeCmd, [0, 'Success']);
+          await sim._SimReset();
+          await sim._SimStart();
+          await updateData(true);
+        } else {
+          addCommandResult(fakeCmd, [1, 'Write Failed']);
+        }
+      }
+      reader.readAsArrayBuffer(input.files[0])
+    }
+    input.click();
+    input.remove();
+  }
+
+  menuSave.onclick = async () => {
+    const model = await sim._model;
+    const type = hexType.toUpperCase();
+    const name = `${model}-${type}.bin`;
+    await updateData(true);
+    const toSave = new Uint8Array(data);
+    const blob = new Blob([toSave], { type: 'application/octet-stream' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    a.remove();
+    addCommandResult(`save-${hexType} ${name}`, [0, 'Success']);
+  }
+
+  menuSearch.onclick = () => {
+    focusType = 'other';
+    searchDialog.showModal();
+    searchText.focus();
+  }
+
+  searchConfirm.onclick = async () => {
+    const text = searchText.value;
+    if (!text) {
+      return;
+    }
+    const fixCommand = (text) => {
+      if (text.includes(' ') || text.includes('"')) {
+        return `"${text.replace(/"/g, '\\"')}"`;
+      }
+      return text;
+    }
+    const type = document.querySelector('input[name="searchType"]:checked').value;
+    const max = searchMax.value;
+    if (type === 'hex') {
+      const result = await commandMap['sch'](text, max);
+      addCommandResult(`sch ${fixCommand(text)} ${max}`, result);
+    } else if (type === 'ascii') {
+      const result = await commandMap['sca'](text, max);
+      addCommandResult(`sca ${fixCommand(text)} ${max}`, result);
+    }
+    closeDialog({ target: searchDialog });
+  }
+
+  const render = async () => {
+    if (!sim) {
+      await new Promise(resolve => setTimeout(resolve, 100))
+      await render()
+      return
+    } else if (!ready) {
+      await init();
+    }
+
+    await updateData();
+    updateContent();
+    await new Promise(resolve => setTimeout(resolve, 100))
+    await render()
+  }
+
+  render()
+</script>
+</html>

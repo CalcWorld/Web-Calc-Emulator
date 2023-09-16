@@ -1,0 +1,22 @@
+@font-face {
+    font-family: 'CASIO-CY-Display';
+    src:  url('../font/CASIO-CY-Display.eot?ejapb7');
+    src:  url('../font/CASIO-CY-Display.eot?ejapb7#iefix') format('embedded-opentype'),
+    url('../font/CASIO-CY-Display.ttf?ejapb7') format('truetype'),
+    url('../font/CASIO-CY-Display.woff?ejapb7') format('woff'),
+    url('../font/CASIO-CY-Display.svg?ejapb7#CASIO-CY-Display') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'CASIO-EY-Display-Font';
+    src:  url('../font/CASIO-EY-Display-Font.eot?qabb59');
+    src:  url('../font/CASIO-EY-Display-Font.eot?qabb59#iefix') format('embedded-opentype'),
+    url('../font/CASIO-EY-Display-Font.ttf?qabb59') format('truetype'),
+    url('../font/CASIO-EY-Display-Font.woff?qabb59') format('woff'),
+    url('../font/CASIO-EY-Display-Font.svg?qabb59#CASIO-EY-Display-Font') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}

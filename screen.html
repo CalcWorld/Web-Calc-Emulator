@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Popup Display Screen</title>
+</head>
+<style>
+    html, body {
+        margin: 0;
+        padding: 0;
+        background: #d6e3d6;
+        overflow: hidden;
+    }
+
+    #container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform-origin: left top;
+        z-index: -1;
+    }
+
+    #status {
+        position: absolute;
+        width: 278px;
+    }
+
+    #status > * > * {
+        /* The initial state is to hide all the status icons because no model has been selected. */
+        opacity: 0;
+    }
+
+    #screen {
+        position: absolute;
+        width: 278px;
+        top: 13px;
+    }
+
+    .pixelated {
+        /* http://phrogz.net/tmp/canvas_image_zoom.html */
+        image-rendering: optimizeSpeed;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -o-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: optimize-contrast;
+        image-rendering: crisp-edges;
+        image-rendering: pixelated;
+        -ms-interpolation-mode: nearest-neighbor;
+    }
+</style>
+<body>
+<div id="container"></div>
+<div id="warning" style="display: none;">
+    <div>Cannot open this page directly</div>
+    <div>不能直接打开此页面</div>
+</div>
+</body>
+<script>
+  const parentWindow = window.opener;
+  if (!parentWindow) {
+    warning.style.display = "block";
+    throw new Error("Cannot open this page directly.");
+  }
+
+  const parentDocument = parentWindow.document;
+  const parentStatus = parentDocument.getElementById("status");
+  const parentScreen = parentDocument.getElementById("screen");
+  const container = document.getElementById("container");
+  container.appendChild(parentStatus.cloneNode(true));
+  container.appendChild(parentScreen.cloneNode(true));
+  const canvas = document.getElementById("screen");
+  const ctx = canvas.getContext("2d");
+  ctx.putImageData(parentWindow.imageData, 0, 0);
+  const status = document.getElementById("status");
+
+  requestAnimationFrame(function render() {
+    const parentStatus = parentDocument.getElementById("status");
+    status.innerHTML = parentStatus.innerHTML;
+    ctx.putImageData(parentWindow.imageData, 0, 0);
+
+    requestAnimationFrame(render);
+  })
+
+  const handleResize = () => {
+    const width = 278
+    const height = 106
+    const scale = Math.min(document.documentElement.clientWidth / width, document.documentElement.clientHeight / height)
+    container.style.width = width + 'px'
+    container.style.height = height + 'px'
+    container.style.transform = `translate(
+			${(document.documentElement.clientWidth - width * scale) / 2}px,
+			${(document.documentElement.clientHeight - height * scale) / 2}px
+		) scale(${scale})`
+  }
+
+  onresize = handleResize;
+  handleResize();
+  setTimeout(handleResize, 5);
+
+  oncontextmenu = (e) => {
+    e.preventDefault();
+    parentWindow.takeScreenshot();
+    return false;
+  };
+
+</script>
+</html>

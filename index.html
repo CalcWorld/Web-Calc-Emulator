@@ -1269,8 +1269,8 @@
     return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   }
 
-  const i18nResource = () => {
-    const i18n_en = {
+  const i18nResource = {
+    en: {
       "SettingTitle": "SETTINGS",
       "SettingDefaultSPTitle": "Default Startup Page",
       "SettingDefaultSP_MS": "Model Selection",
@@ -1347,9 +1347,8 @@
       "QRPopUpNoQRC": "No QR Code",
       "QRPopUpCopiedTC": "Copied to clipboard. ",
       "QRPopUpConfirmTOINT": "OK to open in new tab.",
-    }
-
-    const i18n_zh = {
+    },
+    zh: {
       "SettingTitle": "设置",
       "SettingDefaultSPTitle": "默认启动画面",
       "SettingDefaultSP_MS": "型号选择列表",
@@ -1426,9 +1425,8 @@
       "QRPopUpNoQRC": "QR 码未显示",
       "QRPopUpCopiedTC": "已复制到剪贴板，",
       "QRPopUpConfirmTOINT": "按确定在新标签页打开",
-    }
-
-    const i18n_vi = {
+    },
+    vi: {
       "SettingTitle": "CÀI ĐẶT",
       "SettingDefaultSPTitle": "Trang khởi động mặc định",
       "SettingDefaultSP_MS": "Trang chọn model",
@@ -1506,32 +1504,16 @@
       "QRPopUpCopiedTC": "Đã sao chép vào bảng nhớ tạm. ",
       "QRPopUpConfirmTOINT": "Xác nhận để mở trong tab mới.",
     }
-
-    const i18nLang = {
-      'en': i18n_en,
-      'zh': i18n_zh,
-      'vi': i18n_vi,
-    }
-
-    const langKey = emuSetting.getSettingValue('language');
-    return i18nLang[langKey] ? [langKey, i18nLang[langKey]] : ['en', []];
   }
 
   const i18n = () => {
-    const [langKey, i18nData] = i18nResource();
-    document.getElementsByTagName('html')[0].setAttribute('lang', langKey);
-    if (i18nData.length === 0) {
-      return;
-    }
+    const langKey = emuSetting.getSettingValue('language');
+    document.documentElement.setAttribute('lang', langKey)
 
-    const i18n_elements = document.querySelectorAll('[data-i18n-tag]');
-    i18n_elements.forEach(element => {
-      const tag = element.getAttribute('data-i18n-tag');
-      if (i18nData[tag]) {
-        element.innerText = i18nData[tag];
-      }
-    });
-
+    document.querySelectorAll('[data-i18n-tag]').forEach(element => {
+      const tag = element.dataset.i18nTag
+      element.textContent = i18nResource[langKey][tag] ?? tag
+    })
   }
 
   class EmuSettings {

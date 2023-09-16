@@ -82,4 +82,8 @@
     return false;
   };
 
+  onkeydown = onkeyup = event => {
+    parentWindow.dispatchEvent(new KeyboardEvent(event.type, event))
+  }
+
 </script>

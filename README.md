@@ -6,7 +6,7 @@ A community-driven web calculator emulator.
 
 ## Usage
 
-To run the emulator, you need to have Python3 installed and run the following command:
+To run the emulator, set up a local HTTP server for static files with your favorite tool and visit index.html. If you have Python 3 installed, you can run the following command:
 
 ```bash
 python ./start.py
@@ -32,7 +32,7 @@ When you have a lot of models to import, you can follow the steps below to impor
 
 - Create a `data` folder in the root directory of the repository.
 - Create a folder for each model in the `data` folder, and name it with the model ID.
-- Put the 3 files(`core.dat`, `face.svg` and `keylog.json`) in the folder you just created.
+- Put the 3 files (`core.dat`, `face.svg` and `keylog.json`) in the folder you just created.
 - Open `index.html` in a text editor, and find the line `const emulatorList = {};`. As an example, change it to
   ```javascript
   const emulatorList = {

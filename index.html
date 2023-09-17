@@ -1507,12 +1507,18 @@
   }
 
   const i18n = () => {
-    const langKey = emuSetting.getSettingValue('language');
+    let langKey = emuSetting.getSettingValue('language');
+    let i18nL10n = i18nResource[langKey];
+    if (!i18nL10n) {
+      i18nL10n = i18nResource['en'];
+      langKey = 'en';
+    }
+
     document.documentElement.setAttribute('lang', langKey)
 
     document.querySelectorAll('[data-i18n-tag]').forEach(element => {
       const tag = element.dataset.i18nTag
-      element.textContent = i18nResource[langKey][tag] ?? tag
+      element.textContent = i18nL10n[tag] ?? element.textContent;
     })
   }
 

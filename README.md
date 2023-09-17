@@ -4,7 +4,7 @@ A community-driven web calculator emulator.
 
 **FOR STUDYING AND LEARNING PURPOSES ONLY. COMMERCIAL USE IS NOT ALLOWED.**
 
-## How to use
+## How To Use
 
 In order to run the emulator, you have to set up a local HTTP server for static files, just using the tools you familiar with, and then open `index.html` in your browser. 
 
@@ -20,11 +20,11 @@ Please note that there's no available models in this repository. You have to fin
 
 Run the emulator, and then switch to **Add Custom Model** panel to import a single model.
 
-- **Model ID**: Require to start with `CY` or `EY` in order to indicate the model type.
+- **Model ID**: Required to start with `CY` or `EY` in order to indicate the model type.
 
 - **Model Name**: The name of the model, can be whatever you like.
 
-- **Model File**: 3 files are needed, including `core.dat` (or `rom.bin`), `face.svg` and `keylog.json`.
+- **Model File**: 3 files are needed, which are `core.dat` (or `rom.bin`), `face.svg` and `keylog.json`.
 
    `core.dat` file: the ROM file of the calculator, can be either raw or encrypted.
 

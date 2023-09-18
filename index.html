@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
@@ -385,8 +385,8 @@
         background-color: #ab6666;
     }
 
-    dialog .flow, dialog .section .flow {
-        margin-bottom: 0;
+    dialog .flow, dialog > section .flow, dialog > section .sub-group.flow {
+        margin-bottom: 5px;
     }
 
     dialog .bottom {
@@ -910,10 +910,10 @@
                         <span data-i18n-tag="SettingScreenshotS_SO_F_Off">None</span>
                     </label>
                     <label><input type="radio" name="screenshot-frame" value="round-corner">
-                        <span data-i18n-tag="SettingScreenshotS_SO_F_RC">Round Corner</span>
+                        <span data-i18n-tag="SettingScreenshotS_SO_F_RC">Rounded rectangle</span>
                     </label>
                     <label><input type="radio" name="screenshot-frame" value="vertical">
-                        <span data-i18n-tag="SettingScreenshotS_SO_F_V">Vertical</span>
+                        <span data-i18n-tag="SettingScreenshotS_SO_F_V">Rectangle</span>
                     </label>
                 </div>
                 <div class="sub-group">
@@ -944,9 +944,9 @@
                 <span data-i18n-tag="SettingScreenshotStg_DF">Download as file</span>
             </label><br>
             <label><input type="radio" name="screenshot-storage" value="both">
-                <span data-i18n-tag="SettingScreenshotStg_BA">Both above</span>
+                <span data-i18n-tag="SettingScreenshotStg_BA">Both</span>
             </label>
-            <p data-i18n-tag="SettingScreenshotStg_NTC">Mobiles Can "Download as file" Only</p>
+            <p data-i18n-tag="SettingScreenshotStg_NTC">* On mobile devices, only downloading is supported.</p>
         </div>
         <div class="group">
             <h3 data-i18n-tag="SettingMenuBISTitle">Menu Bar Icon Size</h3>
@@ -1040,7 +1040,7 @@
     <section>
         <div class="group button-container flow">
             <div class="button" id="autoKeySwcKfBtn" data-i18n-tag="AutoKey_KFont">Key Font</div>
-            <div class="button enable" id="autoKeySwcPtBtn" data-i18n-tag="AutoKey_PText">Pure Text</div>
+            <div class="button enable" id="autoKeySwcPtBtn" data-i18n-tag="AutoKey_PText">Plain Text</div>
         </div>
         <div class="group flow">
             <div id="autoKeyInputFont" contenteditable="true" style="display: none;"></div>
@@ -1121,7 +1121,7 @@
                 <input id="customModelInputModelName" type="text">
             </div>
             <div>
-                <h3 data-i18n-tag="CustomModelInputFiles">ROM, face.svg and keylog.json files</h3>
+                <h3 data-i18n-tag="CustomModelInputFiles">Model Files (ROM, face.svg and keylog.json)</h3>
             </div>
             <div class="sub-group">
                 <input id="customModelInputFiles" multiple="multiple" type="file" accept=".bin,.dat,.svg,.json">
@@ -1134,9 +1134,35 @@
         </div>
         <hr>
         <div class="group">
-            <h3>Help</h3>
-            <div class="sub-group">To be continue......</div>
+            <strong data-i18n-tag="CustomModelDescTitleModelID">Model ID</strong>:
+            <span data-i18n-tag="CustomModelDescModelID">Required to start with CY or EY in order to indicate the model type.</span>
         </div>
+        <div class="group">
+            <strong data-i18n-tag="CustomModelDescTitleModelName">Model Name</strong>:
+            <span data-i18n-tag="CustomModelDescModelName">The name of the model, can be whatever you like, used to display in the model list.</span>
+        </div>
+        <div class="group flow">
+            <strong data-i18n-tag="CustomModelDescTitleModelFiles">Model Files</strong>:
+            <span data-i18n-tag="CustomModelDescModelFiles01">Necessary files to run the model, which are:</span>
+        </div>
+        <div class="group flow">
+            <div class="sub-group flow">
+                <strong>ROM (core.dat / rom.bin)</strong>:
+                <span data-i18n-tag="CustomModelDescModelFiles02">the ROM of the calculator, can be either raw or encrypted.</span>
+            </div>
+            <div class="sub-group flow">
+                <strong>face.svg</strong>:
+                <span data-i18n-tag="CustomModelDescModelFiles03">an SVG file of the calculator's faceplate.</span>
+            </div>
+            <div class="sub-group flow">
+                <strong>keylog.json</strong>:
+                <span data-i18n-tag="CustomModelDescModelFiles04">the keylog file of the calculator, which is used to map the key codes to the key names.</span>
+            </div>
+        </div>
+        <div class="group flow">
+            <span data-i18n-tag="CustomModelDescModelFiles05">Only the filename extension is checked, and select the 3 files all in once when uploading.</span>
+        </div>
+        <div class="bottom"></div>
     </section>
 </dialog>
 <div id="i18nCustomModel" style="display: none;">
@@ -1157,8 +1183,8 @@
 </div>
 <div id="i18nQRPopUp" style="display: none;">
     <span data-i18n-tag="QRPopUpNoQRC" id="QRPopUpNoQRC">No QR Code</span>
-    <span data-i18n-tag="QRPopUpCopiedTC" id="QRPopUpCopiedTC">Copied to Clipboard.&nbsp;</span>
-    <span data-i18n-tag="QRPopUpConfirmTOINT" id="QRPopUpConfirmTOINT">Confirm to Open in New Tab.</span>
+    <span data-i18n-tag="QRPopUpCopiedTC" id="QRPopUpCopiedTC">Copied to clipboard.&nbsp;</span>
+    <span data-i18n-tag="QRPopUpConfirmTOINT" id="QRPopUpConfirmTOINT">OK to open in new tab.</span>
 </div>
 <div class="menu" id="menu">
     <ul class="menu-list">
@@ -1330,8 +1356,18 @@
       "CustomModelTitle": "Add Custom Model",
       "CustomModelInputModelId": "Model ID (CY***/EY***)",
       "CustomModelInputModelName": "Model Name (fx-***)",
-      "CustomModelInputFiles": "ROM, face.svg and keylog.json files",
+      "CustomModelInputFiles": "Model Files (ROM, face.svg and keylog.json)",
       "CustomModelAdd": "Add",
+      "CustomModelDescTitleModelID": "Model ID",
+      "CustomModelDescModelID": "Required to start with CY or EY in order to indicate the model type.",
+      "CustomModelDescTitleModelName": "Model Name",
+      "CustomModelDescModelName": "The name of the model, can be whatever you like, used to display in the model list.",
+      "CustomModelDescTitleModelFiles": "Model Files",
+      "CustomModelDescModelFiles01": "Necessary files to run the model, which are:",
+      "CustomModelDescModelFiles02": "the ROM of the calculator, can be either raw or encrypted.",
+      "CustomModelDescModelFiles03": "an SVG file of the calculator's faceplate.",
+      "CustomModelDescModelFiles04": "the keylog file of the calculator, which is used to map the key codes to the key names.",
+      "CustomModelDescModelFiles05": "Only the filename extension is checked, and select the 3 files all in once when uploading.",
       "CustomModelListTitle": "Custom",
       "CustomModelAddFileNotMatch": "Please select 3 files. See the help below for more info.",
       "CustomModelAddSuccess": "Success",
@@ -1346,7 +1382,7 @@
       "ModelListEnterNRN": "Enter New RAM Name: ",
       "QRPopUpNoQRC": "No QR Code",
       "QRPopUpCopiedTC": "Copied to clipboard. ",
-      "QRPopUpConfirmTOINT": "OK to open in new tab.",
+      "QRPopUpConfirmTOINT": "OK to open in new tab."
     },
     zh: {
       "SettingTitle": "设置",
@@ -1408,8 +1444,18 @@
       "CustomModelTitle": "添加自建型号",
       "CustomModelInputModelId": "型号ID (CY***或EY***)",
       "CustomModelInputModelName": "型号名称 (fx-***)",
-      "CustomModelInputFiles": "ROM、face.svg 和 keylog.json 文件",
+      "CustomModelInputFiles": "型号文件 (ROM、face.svg 和 keylog.json)",
       "CustomModelAdd": "添加",
+      "CustomModelDescTitleModelID": "型号ID",
+      "CustomModelDescModelID": "必须以 CY 或 EY 开头，用来识别型号类型",
+      "CustomModelDescTitleModelName": "型号名称",
+      "CustomModelDescModelName": "可为任意值，用来显示在型号列表中",
+      "CustomModelDescTitleModelFiles": "型号文件",
+      "CustomModelDescModelFiles01": "运行该型号所需文件，包括：",
+      "CustomModelDescModelFiles02": "计算器 ROM，可为原始的或加密的",
+      "CustomModelDescModelFiles03": "计算器面板 SVG 文件",
+      "CustomModelDescModelFiles04": "按键记录文件，用来将按键代码映射到按键名称",
+      "CustomModelDescModelFiles05": "仅通过文件扩展名检测文件，上传时请一次性选择全部 3 个文件",
       "CustomModelListTitle": "自建",
       "CustomModelAddFileNotMatch": "请选择上述所示的 3 个文件，参阅下面的帮助信息了解更多",
       "CustomModelAddSuccess": "添加成功",
@@ -1486,8 +1532,18 @@
       "CustomModelTitle": "Add Custom Model",
       "CustomModelInputModelId": "Model ID (CY***/EY***)",
       "CustomModelInputModelName": "Model Name (fx-***)",
-      "CustomModelInputFiles": "ROM, face.svg and keylog.json files",
+      "CustomModelInputFiles": "Model Files (ROM, face.svg and keylog.json)",
       "CustomModelAdd": "Add",
+      "CustomModelDescTitleModelID": "Model ID",
+      "CustomModelDescModelID": "Required to start with CY or EY in order to indicate the model type.",
+      "CustomModelDescTitleModelName": "Model Name",
+      "CustomModelDescModelName": "The name of the model, can be whatever you like, used to display in the model list.",
+      "CustomModelDescTitleModelFiles": "Model Files",
+      "CustomModelDescModelFiles01": "Necessary files to run the model, which are:",
+      "CustomModelDescModelFiles02": "the ROM of the calculator, can be either raw or encrypted.",
+      "CustomModelDescModelFiles03": "an SVG file of the calculator's faceplate.",
+      "CustomModelDescModelFiles04": "the keylog file of the calculator, which is used to map the key codes to the key names.",
+      "CustomModelDescModelFiles05": "Only the filename extension is checked, and select the 3 files all in once when uploading.",
       "CustomModelListTitle": "Custom",
       "CustomModelAddFileNotMatch": "Please select 3 files. See the help below for more info.",
       "CustomModelAddSuccess": "Success",
@@ -1503,7 +1559,7 @@
       "QRPopUpNoQRC": "Không có mã QR",
       "QRPopUpCopiedTC": "Đã sao chép vào bảng nhớ tạm. ",
       "QRPopUpConfirmTOINT": "Xác nhận để mở trong tab mới.",
-    }
+    },
   }
 
   const i18n = () => {

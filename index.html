@@ -1381,7 +1381,7 @@
       "ModelListNew": "New...",
       "ModelListEnterNRN": "Enter New RAM Name: ",
       "QRPopUpNoQRC": "No QR Code",
-      "QRPopUpCopiedTC": "Copied to clipboard. ",
+      "QRPopUpCopiedTC": "Copied to clipboard. ",
       "QRPopUpConfirmTOINT": "OK to open in new tab.",
     },
     zh: {
@@ -2078,7 +2078,7 @@
         const modelName = modelInfo['name']
         if (!customModelKey) {
           const ramName = ramCode ? localStorage.getItem(`ram_name_${model}_${ramCode}`) : ModelListTemp.innerText
-          recentEl.innerHTML = `[${modelName}] (${ramName} RAM)`
+          recentEl.innerHTML = `[${modelName}] (${ramName})`
         } else {
           recentEl.innerHTML = `[${modelName}] (${ModelListCustom.innerText})`
         }

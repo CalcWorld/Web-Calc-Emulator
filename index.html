@@ -1376,12 +1376,12 @@
       "CustomModelNoModelTip03": ". You can create more in the Settings panel later.",
       "ModelListTitle": "Model List",
       "ModelListRecent": "Recent",
-      "ModelListTemp": "Temp",
+      "ModelListTemp": "Temp RAM",
       "ModelListCustom": "Custom Model",
       "ModelListNew": "New...",
       "ModelListEnterNRN": "Enter New RAM Name: ",
       "QRPopUpNoQRC": "No QR Code",
-      "QRPopUpCopiedTC": "Copied to clipboard. ",
+      "QRPopUpCopiedTC": "Copied to clipboard. ",
       "QRPopUpConfirmTOINT": "OK to open in new tab.",
     },
     zh: {
@@ -1464,7 +1464,7 @@
       "CustomModelNoModelTip03": "。稍后可在设置面板创建更多。",
       "ModelListTitle": "型号一览",
       "ModelListRecent": "最近使用",
-      "ModelListTemp": "临时",
+      "ModelListTemp": "临时 RAM",
       "ModelListCustom": "自建型号",
       "ModelListNew": "新建...",
       "ModelListEnterNRN": "新建 RAM 名称：",
@@ -1510,9 +1510,9 @@
       "MenuExportQU": "Xuất URL mã QR",
       "MenuHexE": "Trình soạn thảo hex",
       "MenuEmulatorS": "Cài đặt giả lập",
-      "SettingMenuCMTitle": "Custom Model",
-      "SettingMenuCMAdd": "Add",
-      "SettingMenuCMManage": "Manage",
+      "SettingMenuCMTitle": "Model tuỳ chỉnh",
+      "SettingMenuCMAdd": "Thêm",
+      "SettingMenuCMManage": "Điều chỉnh",
       "AutoKeyTitle": "Tự động nhấn phím",
       "AutoKey_KFont": "Phông bàn phím",
       "AutoKey_PText": "Chữ thường",
@@ -1552,13 +1552,13 @@
       "CustomModelNoModelTip03": ". Bạn có thể tạo thêm trong phần Cài đặt sau.",
       "ModelListTitle": "Danh sách model",
       "ModelListRecent": "Gần đây",
-      "ModelListTemp": "RAM tạm thời - Temp",
+      "ModelListTemp": "RAM tạm thời",
       "ModelListCustom": "Custom Model",
       "ModelListNew": "Mới...",
       "ModelListEnterNRN": "Nhập tên RAM mới: ",
       "QRPopUpNoQRC": "Không có mã QR",
       "QRPopUpCopiedTC": "Đã sao chép vào bảng nhớ tạm. ",
-      "QRPopUpConfirmTOINT": "Xác nhận để mở trong tab mới.",
+      "QRPopUpConfirmTOINT": "Nhấn OK để mở trong tab mới.",
     },
   }
 
@@ -1882,7 +1882,7 @@
 
     const tempRam = document.createElement('li');
     tempRam.className = 'modelRamOption';
-    tempRam.innerHTML = ModelListTemp.innerText + ' RAM';
+    tempRam.innerHTML = ModelListTemp.innerText;
     tempRam.onclick = () => {
       location.replace(`index.html?model=${model}`)
     }

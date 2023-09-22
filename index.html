@@ -1787,6 +1787,7 @@
 
   const urlParams = new URLSearchParams(window.location.search);
   const model = urlParams.get('model');
+  let modelType;
   let modelName;
   let modelBackground;
   let ramCode = urlParams.get('ram_code');
@@ -1952,6 +1953,9 @@
       await sim.Init(model, customRomData, customKeylog);
     }
     window.sim = sim
+
+    modelType = await sim._modelType;
+    handleResize();
 
     if (!customModelKey) {
       modelName = emulatorList[model]['name']
@@ -2242,7 +2246,7 @@
   })
 
   const handleResize = () => {
-    const width = 375
+    const width = modelType === 'CY' ? 375 : 367
     const height = 635
     const scale = Math.min(document.documentElement.clientWidth / width, document.documentElement.clientHeight / height)
     container.style.width = width + 'px'
@@ -2254,7 +2258,6 @@
   }
 
   onresize = handleResize;
-  handleResize();
 
   // https://developer.mozilla.org/zh-CN/docs/Web/API/UI_Events/Keyboard_event_key_values
   const keyboardMap = {}
@@ -2742,7 +2745,7 @@
       k = true;
       await pressKey('[SHIFT]');
       await pressKey('[SECONDE]');
-      await pressKey((await sim._modelType) === 'CY' ? '[OPTN]' : '[x]');
+      await pressKey(modelType === 'CY' ? '[OPTN]' : '[x]');
       const d = new Date().getTime();
       while (new Date().getTime() - d < 600) {
         await _sleep(150);
@@ -2886,7 +2889,7 @@
 
   const keylogOptimize = async () => {
     const rawToHtml = async raw => {
-      let isNewCW = (await sim._modelType) === 'EY';
+      let isNewCW = modelType === 'EY';
       let isShift = false;
       let isAlpha = false;
       let html = '';

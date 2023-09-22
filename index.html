@@ -2077,7 +2077,7 @@
         }
         const modelName = modelInfo['name']
         if (!customModelKey) {
-          const ramName = ramCode ? localStorage.getItem(`ram_name_${model}_${ramCode}`) : ModelListTemp.innerText
+          const ramName = ramCode ? localStorage.getItem(`ram_name_${model}_${ramCode}`) + ' RAM' : ModelListTemp.innerText
           recentEl.innerHTML = `[${modelName}] (${ramName})`
         } else {
           recentEl.innerHTML = `[${modelName}] (${ModelListCustom.innerText})`

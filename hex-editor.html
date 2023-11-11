@@ -505,9 +505,16 @@
       "WaitingReopen": "出错了，请从模拟器页面重新打开",
       "WaitingDontOpen": "请勿手动输入URL直接打开"
     };
+	
+    const i18n_vi = {
+      "WaitingHexLoading": "Trình soạn thảo hex đang tải...",
+      "WaitingReopen": "Có gì đó đã bị lỗi, vui lòng mở lại từ trang giả lập",
+      "WaitingDontOpen": "Không tự mở dùng URL"
+    };
 
     const i18nLang = {
       "zh": i18n_zh,
+      "vi": i18n_vi,
     };
     const langCode = localStorage.getItem('language') || (navigator.language || navigator.userLanguage).split('-')[0];
     const i18nData = i18nLang[langCode];
@@ -529,7 +536,7 @@
   class CYConfig {
     constructor() {
       this.ES_USRDATA_TOPADR = 0x0D000;
-      this.ES_USRDATA_LEN = 0x02000;
+      this.ES_USRDATA_LEN = 0x03000;
       this.dataStart = this.ES_USRDATA_TOPADR;
       this.dataLength = this.ES_USRDATA_LEN;
       this.codeStart = 0;
@@ -549,7 +556,7 @@
   class EYConfig {
     constructor() {
       this.ES_USRDATA_TOPADR = 0x09000;
-      this.ES_USRDATA_LEN = 0x04000;
+      this.ES_USRDATA_LEN = 0x07000;
       this.dataStart = this.ES_USRDATA_TOPADR;
       this.dataLength = this.ES_USRDATA_LEN;
       this.codeStart = 0;

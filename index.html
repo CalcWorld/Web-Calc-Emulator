@@ -3,6 +3,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow">
 <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
 <title>Calculator Emulator</title>
 <style>
@@ -179,6 +180,11 @@
         left: 64px;
     }
 
+    #status.ES {
+        top: 127px;
+        left: 62px;
+    }
+
     #status > * > * {
         /* The initial state is to hide all the status icons because no model has been selected. */
         opacity: 0;
@@ -209,6 +215,11 @@
         left: 64px;
     }
 
+    #screen.ES {
+        top: 142px;
+        left: 62px;
+    }
+
     .pixelated {
         /* http://phrogz.net/tmp/canvas_image_zoom.html */
         image-rendering: pixelated;
@@ -230,6 +241,7 @@
         height: calc(100vh - 2em);
         max-width: 450px;
         padding: 0 1em;
+        color: #000;
     }
 
     #modelList div {
@@ -1028,56 +1040,108 @@
             <div data-ki="1" data-ko="64" style="left: 282px;top: 584px;width: 54px;height: 38px;"></div>
         </div>
         <div id="keypadESP" style="">
-            <div data-ki="128" data-ko="1" style="left: 40px;top: 295px;width: 47px;height: 35px;"></div>
-            <div data-ki="128" data-ko="2" style="left: 96px;top: 303px;width: 47px;height: 35px;"></div>
-            <div data-ki="128" data-ko="16" style="left: 263px;top: 302px;width: 47px;height: 35px;"></div>
-            <div data-ki="0" data-ko="0" style="left: 315px;top: 296px;width: 47px;height: 35px;"></div>
-            <div data-ki="128" data-ko="4" style="left: 184px;top: 292px;width: 35px;height: 40px;"></div>
-            <div data-ki="64" data-ko="8" style="left: 184px;top: 345px;width: 35px;height: 40px;"></div>
-            <div data-ki="64" data-ko="4" style="left: 148px;top: 322px;width: 35px;height: 35px;"></div>
-            <div data-ki="128" data-ko="8" style="left: 222px;top: 322px;width: 35px;height: 35px;"></div>
-            <div data-ki="64" data-ko="1" style="left: 40px;top: 365px;width: 45px;height: 27px;"></div>
-            <div data-ki="64" data-ko="2" style="left: 94px;top: 365px;width: 45px;height: 27px;"></div>
-            <div data-ki="64" data-ko="16" style="left: 266px;top: 365px;width: 45px;height: 27px;"></div>
-            <div data-ki="64" data-ko="32" style="left: 320px;top: 365px;width: 45px;height: 27px;"></div>
-            <div data-ki="32" data-ko="1" style="left: 45px;top: 412px;width: 45px;height: 27px;"></div>
-            <div data-ki="32" data-ko="2" style="left: 99px;top: 412px;width: 45px;height: 27px;"></div>
-            <div data-ki="32" data-ko="4" style="left: 153px;top: 412px;width: 45px;height: 27px;"></div>
-            <div data-ki="32" data-ko="8" style="left: 207px;top: 412px;width: 45px;height: 27px;"></div>
-            <div data-ki="32" data-ko="16" style="left: 261px;top: 412px;width: 45px;height: 27px;"></div>
-            <div data-ki="32" data-ko="32" style="left: 315px;top: 412px;width: 45px;height: 27px;"></div>
-            <div data-ki="16" data-ko="1" style="left: 45px;top: 458px;width: 45px;height: 27px;"></div>
-            <div data-ki="16" data-ko="2" style="left: 99px;top: 458px;width: 45px;height: 27px;"></div>
-            <div data-ki="16" data-ko="4" style="left: 153px;top: 458px;width: 45px;height: 27px;"></div>
-            <div data-ki="16" data-ko="8" style="left: 207px;top: 458px;width: 45px;height: 27px;"></div>
-            <div data-ki="16" data-ko="16" style="left: 261px;top: 458px;width: 45px;height: 27px;"></div>
-            <div data-ki="16" data-ko="32" style="left: 315px;top: 458px;width: 45px;height: 27px;"></div>
-            <div data-ki="8" data-ko="1" style="left: 45px;top: 504px;width: 45px;height: 27px;"></div>
-            <div data-ki="8" data-ko="2" style="left: 99px;top: 504px;width: 45px;height: 27px;"></div>
-            <div data-ki="8" data-ko="4" style="left: 153px;top: 504px;width: 45px;height: 27px;"></div>
-            <div data-ki="8" data-ko="8" style="left: 207px;top: 504px;width: 45px;height: 27px;"></div>
-            <div data-ki="8" data-ko="16" style="left: 261px;top: 504px;width: 45px;height: 27px;"></div>
-            <div data-ki="8" data-ko="32" style="left: 315px;top: 504px;width: 45px;height: 27px;"></div>
-            <div data-ki="4" data-ko="1" style="left: 41px;top: 551px;width: 62px;height: 38px;"></div>
-            <div data-ki="4" data-ko="2" style="left: 106px;top: 551px;width: 62px;height: 38px;"></div>
-            <div data-ki="4" data-ko="4" style="left: 171px;top: 551px;width: 62px;height: 38px;"></div>
-            <div data-ki="4" data-ko="8" style="left: 236px;top: 551px;width: 62px;height: 38px;"></div>
-            <div data-ki="4" data-ko="16" style="left: 301px;top: 550px;width: 62px;height: 38px;"></div>
-            <div data-ki="2" data-ko="1" style="left: 41px;top: 608px;width: 62px;height: 38px;"></div>
-            <div data-ki="2" data-ko="2" style="left: 107px;top: 608px;width: 62px;height: 38px;"></div>
-            <div data-ki="2" data-ko="4" style="left: 171px;top: 608px;width: 62px;height: 38px;"></div>
-            <div data-ki="2" data-ko="8" style="left: 236px;top: 608px;width: 62px;height: 38px;"></div>
-            <div data-ki="2" data-ko="16" style="left: 301px;top: 608px;width: 62px;height: 38px;"></div>
-            <div data-ki="1" data-ko="1" style="left: 41px;top: 665px;width: 62px;height: 38px;"></div>
-            <div data-ki="1" data-ko="2" style="left: 106px;top: 665px;width: 62px;height: 37px;"></div>
-            <div data-ki="1" data-ko="4" style="left: 171px;top: 665px;width: 62px;height: 38px;"></div>
-            <div data-ki="1" data-ko="8" style="left: 236px;top: 665px;width: 62px;height: 38px;"></div>
-            <div data-ki="1" data-ko="16" style="left: 301px;top: 665px;width: 62px;height: 38px;"></div>
-            <div data-ki="16" data-ko="64" style="left: 41px;top: 722px;width: 62px;height: 38px;"></div>
-            <div data-ki="8" data-ko="64" style="left: 106px;top: 722px;width: 62px;height: 38px;"></div>
-            <div data-ki="4" data-ko="64" style="left: 171px;top: 722px;width: 62px;height: 38px;"></div>
-            <div data-ki="2" data-ko="64" style="left: 236px;top: 722px;width: 62px;height: 38px;"></div>
-            <div data-ki="1" data-ko="64" style="left: 301px;top: 722px;width: 62px;height: 38px;"></div>
+            <div data-ki="128" data-ko="1" style="left: 41px;top: 293px;width: 47px;height: 38px;"></div>
+            <div data-ki="128" data-ko="2" style="left: 96px;top: 301px;width: 47px;height: 38px;"></div>
+            <div data-ki="128" data-ko="16" style="left: 263px;top: 301px;width: 47px;height: 38px;"></div>
+            <div data-ki="0" data-ko="0" style="left: 317px;top: 293px;width: 47px;height: 38px;"></div>
+            <div data-ki="128" data-ko="4" style="left: 185px;top: 294px;width: 35px;height: 30px;"></div>
+            <div data-ki="64" data-ko="8" style="left: 185px;top: 353px;width: 35px;height: 30px;"></div>
+            <div data-ki="64" data-ko="4" style="left: 153px;top: 322px;width: 32px;height: 35px;"></div>
+            <div data-ki="128" data-ko="8" style="left: 220px;top: 322px;width: 32px;height: 35px;"></div>
+            <div data-ki="64" data-ko="1" style="left: 38px;top: 365px;width: 48px;height: 27px;"></div>
+            <div data-ki="64" data-ko="2" style="left: 93px;top: 365px;width: 48px;height: 27px;"></div>
+            <div data-ki="64" data-ko="16" style="left: 264px;top: 365px;width: 48px;height: 27px;"></div>
+            <div data-ki="64" data-ko="32" style="left: 318px;top: 365px;width: 48px;height: 27px;"></div>
+            <div data-ki="32" data-ko="1" style="left: 43px;top: 412px;width: 48px;height: 27px;"></div>
+            <div data-ki="32" data-ko="2" style="left: 97px;top: 412px;width: 48px;height: 27px;"></div>
+            <div data-ki="32" data-ko="4" style="left: 151px;top: 412px;width: 48px;height: 27px;"></div>
+            <div data-ki="32" data-ko="8" style="left: 205px;top: 412px;width: 48px;height: 27px;"></div>
+            <div data-ki="32" data-ko="16" style="left: 259px;top: 412px;width: 48px;height: 27px;"></div>
+            <div data-ki="32" data-ko="32" style="left: 313px;top: 412px;width: 48px;height: 27px;"></div>
+            <div data-ki="16" data-ko="1" style="left: 43px;top: 458px;width: 48px;height: 27px;"></div>
+            <div data-ki="16" data-ko="2" style="left: 97px;top: 458px;width: 48px;height: 27px;"></div>
+            <div data-ki="16" data-ko="4" style="left: 151px;top: 458px;width: 48px;height: 27px;"></div>
+            <div data-ki="16" data-ko="8" style="left: 205px;top: 458px;width: 48px;height: 27px;"></div>
+            <div data-ki="16" data-ko="16" style="left: 259px;top: 458px;width: 48px;height: 27px;"></div>
+            <div data-ki="16" data-ko="32" style="left: 313px;top: 458px;width: 48px;height: 27px;"></div>
+            <div data-ki="8" data-ko="1" style="left: 43px;top: 504px;width: 48px;height: 27px;"></div>
+            <div data-ki="8" data-ko="2" style="left: 97px;top: 504px;width: 48px;height: 27px;"></div>
+            <div data-ki="8" data-ko="4" style="left: 151px;top: 504px;width: 48px;height: 27px;"></div>
+            <div data-ki="8" data-ko="8" style="left: 205px;top: 504px;width: 48px;height: 27px;"></div>
+            <div data-ki="8" data-ko="16" style="left: 259px;top: 504px;width: 48px;height: 27px;"></div>
+            <div data-ki="8" data-ko="32" style="left: 313px;top: 504px;width: 48px;height: 27px;"></div>
+            <div data-ki="4" data-ko="1" style="left: 41px;top: 551px;width: 62px;height: 39px;"></div>
+            <div data-ki="4" data-ko="2" style="left: 106px;top: 551px;width: 62px;height: 39px;"></div>
+            <div data-ki="4" data-ko="4" style="left: 171px;top: 551px;width: 62px;height: 39px;"></div>
+            <div data-ki="4" data-ko="8" style="left: 236px;top: 551px;width: 62px;height: 39px;"></div>
+            <div data-ki="4" data-ko="16" style="left: 301px;top: 551px;width: 62px;height: 39px;"></div>
+            <div data-ki="2" data-ko="1" style="left: 41px;top: 608px;width: 62px;height: 39px;"></div>
+            <div data-ki="2" data-ko="2" style="left: 107px;top: 608px;width: 62px;height: 39px;"></div>
+            <div data-ki="2" data-ko="4" style="left: 171px;top: 608px;width: 62px;height: 39px;"></div>
+            <div data-ki="2" data-ko="8" style="left: 236px;top: 608px;width: 62px;height: 39px;"></div>
+            <div data-ki="2" data-ko="16" style="left: 301px;top: 608px;width: 62px;height: 39px;"></div>
+            <div data-ki="1" data-ko="1" style="left: 41px;top: 665px;width: 62px;height: 39px;"></div>
+            <div data-ki="1" data-ko="2" style="left: 106px;top: 665px;width: 62px;height: 38px;"></div>
+            <div data-ki="1" data-ko="4" style="left: 171px;top: 665px;width: 62px;height: 39px;"></div>
+            <div data-ki="1" data-ko="8" style="left: 236px;top: 665px;width: 62px;height: 39px;"></div>
+            <div data-ki="1" data-ko="16" style="left: 301px;top: 665px;width: 62px;height: 39px;"></div>
+            <div data-ki="16" data-ko="64" style="left: 41px;top: 722px;width: 62px;height: 39px;"></div>
+            <div data-ki="8" data-ko="64" style="left: 106px;top: 722px;width: 62px;height: 39px;"></div>
+            <div data-ki="4" data-ko="64" style="left: 171px;top: 722px;width: 62px;height: 39px;"></div>
+            <div data-ki="2" data-ko="64" style="left: 236px;top: 722px;width: 62px;height: 39px;"></div>
+            <div data-ki="1" data-ko="64" style="left: 301px;top: 722px;width: 62px;height: 39px;"></div>
+        </div>
+        <div id="keypadES" style="">
+            <div data-ki="128" data-ko="1" style="left: 35px;top: 298px;width: 47px;height: 32px;"></div>
+            <div data-ki="128" data-ko="2" style="left: 90px;top: 306px;width: 47px;height: 32px;"></div>
+            <div data-ki="128" data-ko="16" style="left: 264px;top: 306px;width: 47px;height: 32px;"></div>
+            <div data-ki="0" data-ko="0" style="left: 320px;top: 298px;width: 47px;height: 32px;"></div>
+            <div data-ki="128" data-ko="4" style="left: 183px;top: 290px;width: 35px;height: 35px;"></div>
+            <div data-ki="64" data-ko="8" style="left: 183px;top: 360px;width: 35px;height: 35px;"></div>
+            <div data-ki="64" data-ko="4" style="left: 149px;top: 325px;width: 35px;height: 35px;"></div>
+            <div data-ki="128" data-ko="8" style="left: 217px;top: 325px;width: 35px;height: 35px;"></div>
+            <div data-ki="64" data-ko="1" style="left: 40px;top: 365px;width: 48px;height: 30px;"></div>
+            <div data-ki="64" data-ko="2" style="left: 94px;top: 365px;width: 48px;height: 30px;"></div>
+            <div data-ki="64" data-ko="16" style="left: 259px;top: 364px;width: 48px;height: 30px;"></div>
+            <div data-ki="64" data-ko="32" style="left: 314px;top: 363px;width: 48px;height: 30px;"></div>
+            <div data-ki="32" data-ko="1" style="left: 40px;top: 412px;width: 48px;height: 30px;"></div>
+            <div data-ki="32" data-ko="2" style="left: 94px;top: 412px;width: 48px;height: 30px;"></div>
+            <div data-ki="32" data-ko="4" style="left: 150px;top: 412px;width: 48px;height: 30px;"></div>
+            <div data-ki="32" data-ko="8" style="left: 205px;top: 412px;width: 48px;height: 30px;"></div>
+            <div data-ki="32" data-ko="16" style="left: 259px;top: 412px;width: 48px;height: 30px;"></div>
+            <div data-ki="32" data-ko="32" style="left: 313px;top: 412px;width: 48px;height: 30px;"></div>
+            <div data-ki="16" data-ko="1" style="left: 40px;top: 459px;width: 48px;height: 30px;"></div>
+            <div data-ki="16" data-ko="2" style="left: 94px;top: 458px;width: 48px;height: 30px;"></div>
+            <div data-ki="16" data-ko="4" style="left: 149px;top: 458px;width: 48px;height: 30px;"></div>
+            <div data-ki="16" data-ko="8" style="left: 205px;top: 458px;width: 48px;height: 30px;"></div>
+            <div data-ki="16" data-ko="16" style="left: 259px;top: 458px;width: 48px;height: 30px;"></div>
+            <div data-ki="16" data-ko="32" style="left: 313px;top: 458px;width: 48px;height: 30px;"></div>
+            <div data-ki="8" data-ko="1" style="left: 40px;top: 505px;width: 48px;height: 30px;"></div>
+            <div data-ki="8" data-ko="2" style="left: 95px;top: 505px;width: 48px;height: 30px;"></div>
+            <div data-ki="8" data-ko="4" style="left: 149px;top: 505px;width: 48px;height: 30px;"></div>
+            <div data-ki="8" data-ko="8" style="left: 205px;top: 505px;width: 48px;height: 30px;"></div>
+            <div data-ki="8" data-ko="16" style="left: 259px;top: 505px;width: 48px;height: 30px;"></div>
+            <div data-ki="8" data-ko="32" style="left: 313px;top: 505px;width: 48px;height: 30px;"></div>
+            <div data-ki="4" data-ko="1" style="left: 38px;top: 556px;width: 62px;height: 39px;"></div>
+            <div data-ki="4" data-ko="2" style="left: 104px;top: 556px;width: 60px;height: 39px;"></div>
+            <div data-ki="4" data-ko="4" style="left: 171px;top: 556px;width: 60px;height: 39px;"></div>
+            <div data-ki="4" data-ko="8" style="left: 236px;top: 556px;width: 60px;height: 39px;"></div>
+            <div data-ki="4" data-ko="16" style="left: 301px;top: 556px;width: 60px;height: 39px;"></div>
+            <div data-ki="2" data-ko="1" style="left: 38px;top: 614px;width: 60px;height: 39px;"></div>
+            <div data-ki="2" data-ko="2" style="left: 104px;top: 614px;width: 60px;height: 39px;"></div>
+            <div data-ki="2" data-ko="4" style="left: 171px;top: 614px;width: 60px;height: 39px;"></div>
+            <div data-ki="2" data-ko="8" style="left: 237px;top: 614px;width: 60px;height: 39px;"></div>
+            <div data-ki="2" data-ko="16" style="left: 301px;top: 614px;width: 60px;height: 39px;"></div>
+            <div data-ki="1" data-ko="1" style="left: 38px;top: 670px;width: 60px;height: 39px;"></div>
+            <div data-ki="1" data-ko="2" style="left: 105px;top: 670px;width: 60px;height: 38px;"></div>
+            <div data-ki="1" data-ko="4" style="left: 171px;top: 670px;width: 60px;height: 39px;"></div>
+            <div data-ki="1" data-ko="8" style="left: 236px;top: 670px;width: 60px;height: 39px;"></div>
+            <div data-ki="1" data-ko="16" style="left: 301px;top: 670px;width: 60px;height: 39px;"></div>
+            <div data-ki="16" data-ko="64" style="left: 38px;top: 727px;width: 60px;height: 39px;"></div>
+            <div data-ki="8" data-ko="64" style="left: 104px;top: 727px;width: 60px;height: 39px;"></div>
+            <div data-ki="4" data-ko="64" style="left: 171px;top: 727px;width: 60px;height: 39px;"></div>
+            <div data-ki="2" data-ko="64" style="left: 236px;top: 727px;width: 60px;height: 39px;"></div>
+            <div data-ki="1" data-ko="64" style="left: 301px;top: 727px;width: 60px;height: 39px;"></div>
         </div>
     </div>
 </div>
@@ -2034,8 +2098,41 @@
   let ramLoaded = false;
 
   const urlParams = new URLSearchParams(window.location.search);
-  const model = urlParams.get('model');
-  let modelType;
+  const rawModel = urlParams.get('model');
+  let model = rawModel;
+  let modelPad = (() => {
+    const padPattern = /_P([\da-fA-F]+)/;
+    const padMatch = (model || '').match(padPattern);
+    if (padMatch) {
+      model = model.replace(padPattern, '');
+      return parseInt(padMatch[1], 16);
+    }
+    return null;
+  })();
+  const modelType = (() => {
+    if (!model) return null;
+    const modelPrefix = model.substring(0, 2);
+    if (modelPrefix === 'EY') {
+      return MT_CW_NEW;
+    } else if (modelPrefix === 'CY') {
+      const verNum = model.substring(2, 5) * 1;
+      if (verNum >= 840) {
+        return MT_ES_PLUS_2;
+      } else {
+        return MT_CW_OLD;
+      }
+    } else if (modelPrefix === 'LY' || modelPrefix === 'GY') {
+      return MT_ES_PLUS;
+    } else if (modelPrefix === 'ES') {
+      return MT_ES;
+    } else if (modelPrefix === 'FC') {
+      return MT_FC;
+    } else if (modelPrefix === 'SL') {
+      return MT_SOLAR;
+    } else {
+      return null;
+    }
+  })();
   let modelName;
   let modelBackground;
   let ramCode = urlParams.get('ram_code');
@@ -2174,23 +2271,37 @@
   const changeModel = async () => {
     infoOutput.value = 'Loading'
     if (!customModelKey) {
+      const modelPadPath = modelPad ? `_${modelPad.toString(16).toUpperCase()}` : '';
       const svgPath = `data/${model}/face.svg`;
-      const pngPath = `data/${model}/face.png`;
-      const img = new Image();
-      img.onload = function() {
-        container.style.backgroundImage = `url("${svgPath}")`;
-      };
-      img.onerror = function() {
-        container.style.backgroundImage = `url("${pngPath}")`;
-      };
-      img.src = svgPath;
+      const pngPath = `data/${model}/face${modelPadPath}.png`;
+      switch (modelType) {
+        case MT_CW_NEW:
+        case MT_CW_OLD:
+          container.style.backgroundImage = `url("${svgPath}")`;
+          break;
+        case MT_ES_PLUS_2:
+        case MT_ES_PLUS:
+        case MT_ES:
+        case MT_FC:
+        case MT_SOLAR:
+          container.style.backgroundImage = `url("${pngPath}")`;
+          break;
+      }
     } else {
       const url = await localforage.getItem(`${customModelPrefix}-face`)
       container.style.backgroundImage = `url("${url}")`
     }
+
     if (!customModelKey) {
+      if (!emulatorList[model]) {
+        modelSwitchBtn.click();
+        model = null;
+        infoOutput.value = 'Model not found'
+        return;
+      }
       modelBackground = emulatorList[model]['background'];
     } else {
+      // this sets no background
       modelBackground = (await localforage.getItem(`${customModelPrefix}-info`)).background;
     }
     document.body.style.backgroundColor = modelBackground
@@ -2201,15 +2312,14 @@
     await _sleep(5)
     sim = await new SimWrapper
     if (!customModelKey) {
-      await sim.Init(model, false, false)
+      await sim.Init(model, modelType, false, false, modelPad);
     } else {
       const customRomData = await localforage.getItem(`${customModelPrefix}-rom`);
       const customKeylog = await localforage.getItem(`${customModelPrefix}-keylog`);
-      await sim.Init(model, customRomData, customKeylog);
+      await sim.Init(model, modelType, customRomData, customKeylog, modelPad);
     }
     window.sim = sim
 
-    modelType = await sim._modelType;
     document.getElementById('status').classList.add(modelType)
     document.getElementById('screen').classList.add(modelType)
     handleResize();
@@ -2283,11 +2393,11 @@
   }
 
   const addRecent = async () => {
-    localStorage.setItem('last_model', `${model}`)
+    localStorage.setItem('last_model', `${rawModel}`)
     localStorage.setItem('last_ram_code', `${ramCode}`)
     localStorage.setItem('last_custom_key', `${customModelKey}`)
     const add = {
-      model: model,
+      model: rawModel,
       ramCode: ramCode,
       customModelKey: customModelKey,
     }
@@ -2336,9 +2446,9 @@
         const modelName = modelInfo['name']
         if (!customModelKey) {
           const ramName = ramCode ? localStorage.getItem(`ram_name_${model}_${ramCode}`) + ' RAM' : ModelListTemp.innerText
-          recentEl.innerHTML = `[${modelName}] (${ramName})`
+          recentEl.innerHTML = `${modelName} (${ramName})`
         } else {
-          recentEl.innerHTML = `[${modelName}] (${ModelListCustom.innerText})`
+          recentEl.innerHTML = `${modelName} (${ModelListCustom.innerText})`
         }
         recentEl.onclick = () => {
           if (!customModelKey) {
@@ -2520,6 +2630,9 @@
         height = 816;
         break;
       case MT_ES:
+        width = 404;
+        height = 814;
+        break;
       case MT_FC:
       case MT_SOLAR:
         // TODO

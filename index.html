@@ -242,6 +242,7 @@
         max-width: 450px;
         padding: 0 1em;
         color: #000;
+        user-select: none;
     }
 
     #modelList div {
@@ -2478,6 +2479,8 @@
     h3.innerHTML = CustomModelListTitle.innerText;
     h3.className = 'modelCountry'
     div.appendChild(h3)
+    const ul = document.createElement('ul')
+    ul.className = 'modelList'
     for (const key of customs) {
       if (!(key.startsWith('custom-model-') && key.endsWith('-info'))) {
         continue;
@@ -2495,8 +2498,9 @@
       li.onclick = () => {
         location.replace(`index.html?model=${modelId}&custom_model=${customCode}`)
       }
-      div.appendChild(li);
+      ul.appendChild(li);
     }
+    div.appendChild(ul);
     if (hasCustom) {
       return div;
     }
@@ -2747,7 +2751,7 @@
       return;
     }
 
-    const scsStyle = emuSetting.getSettingValue('screenshotStyle')
+    const scsStyle = [MT_CW_NEW, MT_CW_OLD].includes(modelType) ? emuSetting.getSettingValue('screenshotStyle') : 'screen-only'
     const isScreenOnly = scsStyle === 'screen-only'
     const ZOOM = isScreenOnly ? emuSetting.getSettingValue('screenshotZoom') : 4
     const SHADOW = emuSetting.getSettingValue('displayShadow') !== 'off'
@@ -2769,17 +2773,18 @@
 
     const _frameLineWidth = 1
     const _frameGap = 2
-    let _statusHeight;
+    const _statusHeight = 10
+    let DISPLAY_ZOOM;
     switch (modelType) {
       case MT_CW_NEW:
       case MT_CW_OLD:
-        _statusHeight = 10
+        DISPLAY_ZOOM = ZOOM
         break
       case MT_ES_PLUS_2:
       case MT_ES_PLUS:
       case MT_ES:
       case MT_FC:
-        _statusHeight = 5
+        DISPLAY_ZOOM = ZOOM * 2
         break
     }
     const _displayWidth = await (sim.IM).VRAMSIZE_WIDTH
@@ -2788,8 +2793,8 @@
     const FRAME_GAP = _frameGap * ZOOM
     const FRAME_ROUND_RADIUS = 4 * ZOOM
     const STATUS_HEIGHT = _statusHeight * ZOOM
-    const DISPLAY_WIDTH = _displayWidth * ZOOM
-    const DISPLAY_HEIGHT = _displayHeight * ZOOM
+    const DISPLAY_WIDTH = _displayWidth * DISPLAY_ZOOM
+    const DISPLAY_HEIGHT = _displayHeight * DISPLAY_ZOOM
     const SCREEN_WIDTH = DISPLAY_WIDTH + (FRAME_GAP + FRAME_LINE_WIDTH) * 2
     const SCREEN_HEIGHT = DISPLAY_HEIGHT + STATUS_HEIGHT + (FRAME_GAP + FRAME_LINE_WIDTH) * 2
 
@@ -2803,7 +2808,7 @@
 
     const imageDataRaw = await sim.GetDisplayImageData(window.imageData, SHADOW)
     let imageDataNew
-    if (ZOOM === 1) {
+    if (DISPLAY_ZOOM === 1) {
       imageDataNew = imageDataRaw
     } else {
       imageDataNew = new ImageData(DISPLAY_WIDTH, DISPLAY_HEIGHT)
@@ -2812,9 +2817,9 @@
         for (let x = 0; x < _displayWidth; x++) {
           let i = (y * _displayWidth + x) * 4
           let a = imageDataRaw.data[i + 3]
-          for (let y2 = 0; y2 < ZOOM; y2++) {
-            for (let x2 = 0; x2 < ZOOM; x2++) {
-              let i2 = ((y * ZOOM + y2) * DISPLAY_WIDTH + (x * ZOOM + x2)) * 4
+          for (let y2 = 0; y2 < DISPLAY_ZOOM; y2++) {
+            for (let x2 = 0; x2 < DISPLAY_ZOOM; x2++) {
+              let i2 = ((y * DISPLAY_ZOOM + y2) * DISPLAY_WIDTH + (x * DISPLAY_ZOOM + x2)) * 4
               imageDataNew.data[i2 + 3] = a
             }
           }

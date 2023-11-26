@@ -2388,7 +2388,7 @@
     await _sleep(model.includes('EY') ? 50 : 10)
     const ram = await localforage.getItem(`ram_${model}_${ramCode}`)
     if (ram && ram.length > 0) {
-      await sim.LoadRAM(model, ram)
+      await sim.NewLoadRAM(ram)
       await sim.OnKey();
     }
   }
@@ -2600,7 +2600,7 @@
       cpuTime = await sim._cpuTime
 
       if (ramCode && localStorage.getItem(`ram_name_${model}_${ramCode}`)) {
-        await localforage.setItem(`ram_${model}_${ramCode}`, await sim.SaveRAM(model))
+        await localforage.setItem(`ram_${model}_${ramCode}`, await sim.NewSaveRAM())
       }
 
       if (await sim._keyLogEnabled) {

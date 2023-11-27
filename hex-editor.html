@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hex Editor - CADUO</title>
-    <link rel="stylesheet" href="./lib/font.css">
+    <title>Hex Editor</title>
+    <link rel="stylesheet" href="./lib/font.css?v2">
 </head>
 <style>
     body {
@@ -115,12 +115,16 @@
         display: block;
     }
 
-    .ascii.content.CY {
-        font-family: 'CASIO-CY-Display' !important;
-    }
-
     .ascii.content.EY {
         font-family: 'CASIO-EY-Display-Font' !important;
+    }
+
+    .ascii.content.CY {
+        font-family: 'CASIO-CY-Display-Font' !important;
+    }
+
+    .ascii.content.ESP {
+        font-family: 'CASIO-ESP-Display-Small-Font' !important;
     }
 
     @keyframes flash {
@@ -505,7 +509,7 @@
       "WaitingReopen": "出错了，请从模拟器页面重新打开",
       "WaitingDontOpen": "请勿手动输入URL直接打开"
     };
-	
+
     const i18n_vi = {
       "WaitingHexLoading": "Trình soạn thảo hex đang tải...",
       "WaitingReopen": "Có gì đó đã bị lỗi, vui lòng mở lại từ trang giả lập",
@@ -533,48 +537,16 @@
   i18n();
 </script>
 <script>
-  class CYConfig {
-    constructor() {
-      this.ES_USRDATA_TOPADR = 0x0D000;
-      this.ES_USRDATA_LEN = 0x03000;
-      this.dataStart = this.ES_USRDATA_TOPADR;
-      this.dataLength = this.ES_USRDATA_LEN;
-      this.codeStart = 0;
-      this.codeLength = 0x03ffff + 1;
+  const MT_CW_NEW = "EY";
+  const MT_CW_OLD = "CY";
+  const MT_ES_PLUS = "ESP";
+  const MT_ES_PLUS_2 = "ESP2";
+  const MT_ES = "ES";
+  const MT_FC = "FC";
+  const MT_SOLAR = "SOLAR";
 
-      this.userInputStart = this.ES_USRDATA_TOPADR + 0x18 * 0x10;
-      this.userInputEnd = this.userInputStart + 199 - 1;
-      this.cacheInputStart = this.userInputEnd + 1 + 1;
-      this.cacheInputEnd = this.cacheInputStart + 199 - 1;
-
-      this.cursor = this.userInputStart - 0x2B;
-      this.ES_NAME_ADR = 0x3FFEE;
-      this.romInfoStart = this.ES_NAME_ADR;
-    }
-  }
-
-  class EYConfig {
-    constructor() {
-      this.ES_USRDATA_TOPADR = 0x09000;
-      this.ES_USRDATA_LEN = 0x07000;
-      this.dataStart = this.ES_USRDATA_TOPADR;
-      this.dataLength = this.ES_USRDATA_LEN;
-      this.codeStart = 0;
-      this.codeLength = 0x07ffff + 1;
-
-      this.userInputStart = this.ES_USRDATA_TOPADR + 0x8 + 0x26 * 0x10;
-      this.userInputEnd = this.userInputStart + 199 - 1;
-      this.cacheInputStart = this.userInputEnd + 1 + 1;
-      this.cacheInputEnd = this.cacheInputStart + 199 - 1;
-
-      this.cursor = this.userInputStart - 0x83;
-
-      this.ES_NAME_ADR = 0x71FEE;
-      this.romInfoStart = this.ES_NAME_ADR;
-    }
-  }
-
-  const asciiMap = (() => {
+  let asciiMap;
+  const CwIAsciiMap = CwIiAsciiMap = (() => {
     const unicodeOffset = 0xE000;
     const start = 0x10;
     const end = 0xEF;
@@ -601,6 +573,44 @@
         rawMap[i] = String.fromCharCode(unicodeOffset + i);
       }
     }
+    return rawMap;
+  })();
+
+  const EspAsciiMap = (() => {
+    const unicodeOffset = 0xE100;
+    const start1 = 0x01;
+    const end1 = 0x0E;
+    const start2 = 0x20;
+    const end2 = 0xCF;
+    let rawMap = [
+      "", "¿", "à", "á", "é", "í", "ó", "ö", "ü", "ú", "¡", "Ó", "ä", "", "", "",
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+      " ", "!", "\"", "#", "×", "%", "÷", "'", "(", ")", "⋅", "+", ",", "-", ".", "/",
+      "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?",
+      "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O",
+      "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "[", "▫", "]", "^", "_",
+      "−", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o",
+      "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "├",
+      "𝒊", "𝒆", "", "", "", "°", "ʳ", "ᵍ", "∠", "", "", "", "", "→", "∏", "⇒",
+      "", "", "", "⌟", "≤", "≠", "≥", "", "√", "∫", "ᴀ", "ʙ", "ᴄ", "ₙ", "▶", "◀",
+      "⁰", "¹", "²", "³", "⁴", "⁵", "⁶", "⁷", "⁸", "⁹", "", "", "", "₍", "₎", "",
+      "₀", "₁", "₂", "", "ꜰ", "ɴ", "ᴘ", "", "𝗔", "𝗕", "𝗖", "𝗗", "𝗘", "𝗙", "𝗣", "▷",
+      "∑", "𝛼", "𝛾", "𝜀", "𝜃", "𝜆", "𝜇", "𝜋", "𝜎", "𝜙", "ℓ", "ℏ", "▮", "▯", "₃", "＿",
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+      "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+    ];
+    for (let i = start1; i < end1 + 1; i++) {
+      if (rawMap[i] === "") {
+        rawMap[i] = String.fromCharCode(unicodeOffset + i);
+      }
+    }
+    for (let i = start2; i < end2 + 1; i++) {
+      if (rawMap[i] === "") {
+        rawMap[i] = String.fromCharCode(unicodeOffset + i);
+      }
+    }
+
     return rawMap;
   })();
 
@@ -677,15 +687,32 @@
     hex.style.display = 'block'
 
     modelType = await sim._modelType
-    config = modelType === 'CY' ? new CYConfig() : new EYConfig()
+    config = await sim.IM;
     if (hexType === 'ram') {
-      start = config.dataStart
-      length = config.dataLength
+      start = config.HE_FULL_START
+      length = config.HE_FULL_END - config.HE_FULL_START
     } else if (hexType === 'rom') {
-      start = config.codeStart
-      length = config.codeLength
+      start = config.HE_ROM_START
+      length = config.HE_ROM_END - config.HE_ROM_START
     } else {
       throw new Error('Unknown hex type')
+    }
+    switch (modelType) {
+      case MT_CW_NEW:
+        asciiMap = CwIiAsciiMap;
+        break;
+      case MT_CW_OLD:
+        asciiMap = CwIAsciiMap;
+        break;
+      case MT_ES_PLUS:
+      case MT_ES_PLUS_2:
+        asciiMap = EspAsciiMap;
+        break;
+      case MT_ES:
+      case MT_FC:
+      case MT_SOLAR:
+        asciiMap = EspAsciiMap;
+        break;
     }
     data = new Uint8Array(length)
     lastData = new Uint8Array(length)
@@ -778,7 +805,7 @@
 
   const updateContent = () => {
     const offset = startOffset - start;
-    const cursorIndex = data[config.cursor - start] + config.userInputStart - start;
+    const cursorIndex = data[config.HE_CURSOR - start] + config.HE_USER_INPUT_START - start;
     for (let i = 0; i < rowCount; i++) {
       const rowIndex = hexStr(i, 3);
       const offsetEl = document.getElementById('offset-' + rowIndex);
@@ -802,11 +829,11 @@
           hexElChild.innerHTML = hexStr(data[index]);
           asciiElChild.innerHTML = asciiStr(data[index]);
 
-          const isUserInput = hexType === 'ram' && config.userInputStart - start <= index && index <= config.userInputEnd - start;
+          const isUserInput = hexType === 'ram' && config.HE_USER_INPUT_START - start <= index && index <= config.HE_USER_INPUT_END - start;
           hexEl.classList.toggle('user-input', isUserInput);
           asciiEl.classList.toggle('user-input', isUserInput);
 
-          const isCacheInput = hexType === 'ram' && config.cacheInputStart - start <= index && index <= config.cacheInputEnd - start;
+          const isCacheInput = hexType === 'ram' && config.HE_USER_CACHE_START - start <= index && index <= config.HE_USER_CACHE_END - start;
           hexEl.classList.toggle('cache-input', isCacheInput);
           asciiEl.classList.toggle('cache-input', isCacheInput);
 

@@ -1,21 +1,32 @@
 @font-face {
-    font-family: 'CASIO-CY-Display';
-    src:  url('../font/CASIO-CY-Display.eot?ejapb7');
-    src:  url('../font/CASIO-CY-Display.eot?ejapb7#iefix') format('embedded-opentype'),
-    url('../font/CASIO-CY-Display.ttf?ejapb7') format('truetype'),
-    url('../font/CASIO-CY-Display.woff?ejapb7') format('woff'),
-    url('../font/CASIO-CY-Display.svg?ejapb7#CASIO-CY-Display') format('svg');
+    font-family: 'CASIO-EY-Display-Font';
+    src:  url('../font/CASIO-EY-Display-Font.eot?juuq5y');
+    src:  url('../font/CASIO-EY-Display-Font.eot?juuq5y#iefix') format('embedded-opentype'),
+    url('../font/CASIO-EY-Display-Font.ttf?juuq5y') format('truetype'),
+    url('../font/CASIO-EY-Display-Font.woff?juuq5y') format('woff'),
+    url('../font/CASIO-EY-Display-Font.svg?juuq5y#CASIO-EY-Display-Font') format('svg');
     font-weight: normal;
     font-style: normal;
     font-display: block;
 }
 @font-face {
-    font-family: 'CASIO-EY-Display-Font';
-    src:  url('../font/CASIO-EY-Display-Font.eot?qabb59');
-    src:  url('../font/CASIO-EY-Display-Font.eot?qabb59#iefix') format('embedded-opentype'),
-    url('../font/CASIO-EY-Display-Font.ttf?qabb59') format('truetype'),
-    url('../font/CASIO-EY-Display-Font.woff?qabb59') format('woff'),
-    url('../font/CASIO-EY-Display-Font.svg?qabb59#CASIO-EY-Display-Font') format('svg');
+    font-family: 'CASIO-CY-Display-Font';
+    src:  url('../font/CASIO-CY-Display-Font.eot?b4dsf6');
+    src:  url('../font/CASIO-CY-Display-Font.eot?b4dsf6#iefix') format('embedded-opentype'),
+    url('../font/CASIO-CY-Display-Font.ttf?b4dsf6') format('truetype'),
+    url('../font/CASIO-CY-Display-Font.woff?b4dsf6') format('woff'),
+    url('../font/CASIO-CY-Display-Font.svg?b4dsf6#CASIO-CY-Display-Font') format('svg');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block;
+}
+@font-face {
+    font-family: 'CASIO-ESP-Display-Small-Font';
+    src:  url('../font/CASIO-ESP-Display-Small-Font.eot?1xzavk');
+    src:  url('../font/CASIO-ESP-Display-Small-Font.eot?1xzavk#iefix') format('embedded-opentype'),
+    url('../font/CASIO-ESP-Display-Small-Font.ttf?1xzavk') format('truetype'),
+    url('../font/CASIO-ESP-Display-Small-Font.woff?1xzavk') format('woff'),
+    url('../font/CASIO-ESP-Display-Small-Font.svg?1xzavk#CASIO-ESP-Display-Small-Font') format('svg');
     font-weight: normal;
     font-style: normal;
     font-display: block;

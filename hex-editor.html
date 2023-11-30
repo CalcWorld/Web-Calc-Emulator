@@ -690,6 +690,7 @@
     config = await sim.IM;
     if (hexType === 'ram') {
       start = config.HE_FULL_START
+      startOffset = config.HE_RAM_START
       length = config.HE_FULL_END - config.HE_FULL_START
     } else if (hexType === 'rom') {
       start = config.HE_ROM_START
@@ -783,6 +784,7 @@
     subData = new Uint8Array(columnCount * rowCount);
     await updateData(true);
     updateContent();
+    setNewStartOffset(startOffset);
 
     ready = true;
   }
@@ -901,9 +903,6 @@
     }
     if (newOffset > maxOffset) {
       newOffset = maxOffset;
-    }
-    if (newOffset === startOffset) {
-      return;
     }
     scrolled = true;
     startOffset = newOffset;

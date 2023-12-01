@@ -566,6 +566,22 @@
         margin: 0 5px;
         min-height: 4rem;
     }
+
+    @keyframes blink {
+        0% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0;
+        }
+        100% {
+            opacity: 1;
+        }
+    }
+
+    .blink {
+        animation: blink 800ms 2;
+    }
 </style>
 <div id="container" style="display: none;">
     <svg id="status" viewBox="0 0 576 24">
@@ -1223,11 +1239,14 @@
                 </div>
                 <div class="sub-group">
                     <label><span data-i18n-tag="SettingScreenshotS_SO_B">Background:</span></label><br>
-                    <label><input type="radio" name="screenshot-background" value="white">
+                    <label><input type="radio" name="screenshot-background" value="#fffff">
                         <span data-i18n-tag="SettingScreenshotS_SO_B_W">White</span>
-                    </label><br>
-                    <label><input type="radio" name="screenshot-background" value="depends-on-model">
-                        <span data-i18n-tag="SettingScreenshotS_SO_B_GB">Green for New Model, Blue for Old Model</span>
+                    </label>
+                    <label><input type="radio" name="screenshot-background" value="#d6e3d6">
+                        <span data-i18n-tag="SettingScreenshotS_SO_B_G" style="background-color: #d6e3d6">Green</span>
+                    </label>
+                    <label><input type="radio" name="screenshot-background" value="#d6e3e3">
+                        <span data-i18n-tag="SettingScreenshotS_SO_B_B" style="background-color: #d6e3e3">Blue</span>
                     </label><br>
                     <label><input type="radio" name="screenshot-background" value="custom">
                         <span data-i18n-tag="SettingScreenshotS_SO_B_C">Custom</span>
@@ -1294,12 +1313,6 @@
                 <label><input type="checkbox" name="menu-bar-icon-cus" value="autoKeyBtn">
                     <span><svg class="settings-menu-icon"><use xlink:href="#autoKeyIcon"/></svg></span>
                     <span data-i18n-tag="MenuAutoPK">Auto Press Key</span>
-                </label>
-            </div>
-            <div class="setting-menu-icon-list">
-                <label><input type="checkbox" name="menu-bar-icon-cus" value="exportQrBtn">
-                    <span><svg class="settings-menu-icon"><use xlink:href="#exportQrIcon"/></svg></span>
-                    <span data-i18n-tag="MenuExportQU">Export QR URL</span>
                 </label>
             </div>
             <div class="setting-menu-icon-list">
@@ -1513,10 +1526,6 @@
             <span><svg class="menu-icon"><use xlink:href="#autoKeyIcon"/></svg></span>
             <span data-i18n-tag="MenuAutoPK">Auto Press Key</span>
         </li>
-        <li class="menu-item" id="menuExportQrBtn">
-            <span><svg class="menu-icon"><use xlink:href="#exportQrIcon"/></svg></span>
-            <span data-i18n-tag="MenuExportQU">Export QR URL</span>
-        </li>
         <li class="menu-item" id="menuHexEditorBtn">
             <span><svg class="menu-icon"><use xlink:href="#hexEditorIcon"/></svg></span>
             <span data-i18n-tag="MenuHexE">Hex Editor</span>
@@ -1539,6 +1548,12 @@
         <span><svg class="hud-icon" viewBox="0 0 24 24" stroke-width="1.44" stroke="#000000" fill="none"><g stroke="null" fill="#a8aaac"><path d="M16.549 1.156H7.462c-3.947 0-6.3 2.353-6.3 6.3v9.077c0 3.958 2.353 6.311 6.3 6.311h9.077c3.947 0 6.3-2.353 6.3-6.3V7.456c.011-3.947-2.342-6.3-6.29-6.3z" opacity=".8"/><use xlink:href="#MenuB"/><use xlink:href="#MenuB" y="5"/><use xlink:href="#MenuB" y="9.76"/></g><defs><path id="MenuB" d="M17.427 7.933H6.583a.82.82 0 0 1-.813-.813.82.82 0 0 1 .813-.813h10.844a.82.82 0 0 1 .813.813.82.82 0 0 1-.813.813z"/></defs></svg></span>
     </a>
     <input id="infoOutput" readonly value="No error handling; use inspector">
+    <a class="hud-btn" id="exportQrBtn2" title="Export QR URL" href="javascript:" style="display: none;">
+        <span>
+            <svg style="display: none;"><symbol id="exportQrIcon" fill="#000000" viewBox="0 0 512 512"><path stroke="null" fill-rule="evenodd" d="M490.5 203.903v286.61H203.888l.018-104.222h52.09l-.018 52.112h182.431v-182.39h-26.076v-.026h-26.042v-52.085H490.5zM73.612 386.292v52.131h78.167v52.091H21.5V386.292h52.112zm312.667-78.167v78.167h-78.167v-78.167h78.167zM334.167 21.513v234.474h-52.112V73.625H73.612V282.07H256v52.11H21.5V21.513h312.667zM229.945 125.735v104.222H125.723V125.735h104.222zM386.278 21.487l104.222.027V125.71l-52.096-.026V73.599h-52.126V21.488v-.001z"/></symbol></svg>
+            <svg class="hud-icon"><use xlink:href="#exportQrIcon"/></svg>
+        </span>
+    </a>
     <a id="stopIntervalPressKeyBtn" title="Stop Auto Press Key" href="javascript:" style="display: none;">
         <span>
             <svg style="display: none;"><symbol id="stopIntervalPressKeyIcon" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="#f00" stroke-width="2"/><rect x="5.5" y="5.5" width="9" height="9" rx="2" fill="#f00"/></symbol></svg>
@@ -1581,12 +1596,6 @@
             <svg class="hud-icon"><use xlink:href="#hexEditorIcon"/></svg>
         </span>
     </a>
-    <a class="hud-btn" id="exportQrBtn" title="Export QR URL" href="javascript:">
-        <span>
-            <svg style="display: none;"><symbol id="exportQrIcon" fill="#000000" viewBox="0 0 512 512"><path stroke="null" fill-rule="evenodd" d="M490.5 203.903v286.61H203.888l.018-104.222h52.09l-.018 52.112h182.431v-182.39h-26.076v-.026h-26.042v-52.085H490.5zM73.612 386.292v52.131h78.167v52.091H21.5V386.292h52.112zm312.667-78.167v78.167h-78.167v-78.167h78.167zM334.167 21.513v234.474h-52.112V73.625H73.612V282.07H256v52.11H21.5V21.513h312.667zM229.945 125.735v104.222H125.723V125.735h104.222zM386.278 21.487l104.222.027V125.71l-52.096-.026V73.599h-52.126V21.488v-.001z"/></symbol></svg>
-            <svg class="hud-icon"><use xlink:href="#exportQrIcon"/></svg>
-        </span>
-    </a>
     <a class="hud-btn" id="settingsBtn" title="Settings" href="javascript:">
         <span>
             <svg style="display: none"><symbol id="settingsIcon" fill="none" stroke="#000" stroke-width=".864" viewBox="0 0 24 24"><g fill="#000" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 9.75a2.25 2.25 0 1 0 0 4.5 2.25 2.25 0 0 0 0-4.5ZM8.25 12a3.75 3.75 0 1 1 7.5 0 3.75 3.75 0 0 1-7.5 0Z"/><path d="M9.603 3.77a.919.919 0 0 0-1.25-.335l-.01.006-1.73.99a1.15 1.15 0 0 0-.424 1.564l-.649.375.649-.376c.535.923.679 1.935.2 2.764-.477.83-1.424 1.212-2.489 1.212-.633 0-1.15.522-1.15 1.15v1.76c0 .628.517 1.15 1.15 1.15 1.065 0 2.012.383 2.49 1.212.478.83.334 1.84-.2 2.764a1.149 1.149 0 0 0 .422 1.563l1.742.996a.919.919 0 0 0 1.25-.335l.107-.186c.535-.923 1.341-1.552 2.298-1.552.957 0 1.761.63 2.291 1.554v.001l.106.183a.92.92 0 0 0 1.25.335l.011-.006 1.73-.99a1.147 1.147 0 0 0 .423-1.565c-.534-.923-.677-1.934-.2-2.762.478-.83 1.425-1.212 2.49-1.212.633 0 1.15-.522 1.15-1.15v-1.76c0-.633-.522-1.15-1.15-1.15-1.065 0-2.012-.382-2.49-1.212-.478-.829-.334-1.84.2-2.764a1.15 1.15 0 0 0-.422-1.563l-1.742-.996a.919.919 0 0 0-1.25.335l-.107.186c-.535.923-1.341 1.552-2.298 1.552-.957 0-1.76-.63-2.29-1.553l-.002-.002-.106-.183Zm-2.01-1.628c1.159-.685 2.63-.265 3.302.865l.004.007.11.19.002.003c.37.645.756.8.99.8.236 0 .625-.156 1-.803l.114-.197c.672-1.13 2.143-1.55 3.303-.865l1.724.987a2.65 2.65 0 0 1 .977 3.616v.001c-.375.647-.316 1.06-.2 1.263.118.203.446.461 1.191.461a2.656 2.656 0 0 1 2.65 2.65v1.76a2.656 2.656 0 0 1-2.65 2.65c-.745 0-1.073.258-1.19.46-.117.204-.176.617.199 1.264l.002.004a2.647 2.647 0 0 1-.979 3.613l-1.725.987c-1.159.685-2.63.265-3.302-.864l-.004-.008-.11-.19-.002-.003c-.37-.645-.756-.8-.99-.8-.236 0-.625.156-1 .803l-.114.198c-.672 1.129-2.143 1.55-3.302.864l-1.725-.987a2.65 2.65 0 0 1-.977-3.616v-.001c.375-.647.316-1.06.2-1.263-.118-.204-.446-.461-1.191-.461a2.656 2.656 0 0 1-2.65-2.65v-1.76A2.656 2.656 0 0 1 3.9 8.47c.745 0 1.073-.258 1.19-.46.117-.204.176-.617-.199-1.264a2.649 2.649 0 0 1 .976-3.617l1.725-.987Z"/></g></symbol></svg>
@@ -1622,7 +1631,8 @@
       "SettingScreenshotS_SO_F_V": "Rectangle",
       "SettingScreenshotS_SO_B": "Background:",
       "SettingScreenshotS_SO_B_W": "White",
-      "SettingScreenshotS_SO_B_GB": "Green for New Model, Blue for Old Model",
+      "SettingScreenshotS_SO_B_G": "Green",
+      "SettingScreenshotS_SO_B_B": "Blue",
       "SettingScreenshotS_SO_B_C": "Custom",
       "SettingScreenshotStgTitle": "Screenshot Storage",
       "SettingScreenshotStg_CC": "Copy to Clipboard",
@@ -1636,7 +1646,6 @@
       "MenuPopupD": "Popup Display",
       "MenuStartK": "Start Keylog",
       "MenuAutoPK": "Auto Press Key",
-      "MenuExportQU": "Export QR URL",
       "MenuHexE": "Hex Editor",
       "MenuEmulatorS": "Emulator Settings",
       "SettingMenuCMTitle": "Custom Model",
@@ -1710,7 +1719,8 @@
       "SettingScreenshotS_SO_F_V": "直角",
       "SettingScreenshotS_SO_B": "背景颜色：",
       "SettingScreenshotS_SO_B_W": "白色",
-      "SettingScreenshotS_SO_B_GB": "CW I蓝色，CW II绿色",
+      "SettingScreenshotS_SO_B_G": "绿色",
+      "SettingScreenshotS_SO_B_B": "蓝色",
       "SettingScreenshotS_SO_B_C": "自定义",
       "SettingScreenshotStgTitle": "截屏存储方式",
       "SettingScreenshotStg_CC": "复制到剪贴板",
@@ -1724,7 +1734,6 @@
       "MenuPopupD": "独立屏显",
       "MenuStartK": "按键记录",
       "MenuAutoPK": "自动按键",
-      "MenuExportQU": "导出 QR URL",
       "MenuHexE": "十六进制编辑器",
       "MenuEmulatorS": "模拟器设置",
       "SettingMenuCMTitle": "自建型号",
@@ -1798,7 +1807,8 @@
       "SettingScreenshotS_SO_F_V": "Hình chữ nhật",
       "SettingScreenshotS_SO_B": "Nền:",
       "SettingScreenshotS_SO_B_W": "Trắng",
-      "SettingScreenshotS_SO_B_GB": "Xanh lá cho model mới, xanh dương cho model cũ",
+      "SettingScreenshotS_SO_B_G": "Green",
+      "SettingScreenshotS_SO_B_B": "Blue",
       "SettingScreenshotS_SO_B_C": "Tuỳ chỉnh",
       "SettingScreenshotStgTitle": "Lưu trữ ảnh chụp màn hình",
       "SettingScreenshotStg_CC": "Sao chép vào bảng nhớ tạm",
@@ -1812,7 +1822,6 @@
       "MenuPopupD": "Cửa sổ bật",
       "MenuStartK": "Mở Keylog",
       "MenuAutoPK": "Tự động nhấn phím",
-      "MenuExportQU": "Xuất URL mã QR",
       "MenuHexE": "Trình soạn thảo hex",
       "MenuEmulatorS": "Cài đặt giả lập",
       "SettingMenuCMTitle": "Model tuỳ chỉnh",
@@ -1919,7 +1928,7 @@
         screenshotBackground: {
           className: 'screenshot-background',
           storageKey: 'screenshotBackground',
-          defaultValue: 'depends-on-model',
+          defaultValue: '#d6e3d6',
         },
         screenshotCustomBackgroundColor: {
           className: 'screenshot-custom-background-color',
@@ -1939,7 +1948,7 @@
         menuBarIconCus: {
           className: 'menu-bar-icon-cus',
           storageKey: 'menuBarIconCus',
-          defaultValue: JSON.stringify(['screenshotBtn', 'keyLogBtn', 'exportQrBtn', 'settingsBtn']),
+          defaultValue: JSON.stringify(['screenshotBtn', 'keyLogBtn', 'hexEditorBtn', 'settingsBtn']),
         },
         language: {
           className: 'language',
@@ -2574,6 +2583,7 @@
   let displayShadow = emuSetting.getSettingValue('displayShadow') !== 'off'
   let solarIndicator = emuSetting.getSettingValue('solarIndicator') === 'on'
   let screenShadow = true;
+  let qrIn = false;
   let cpuTime = 0;
   let changeShadowTime;
   let hasRun = false;
@@ -2617,6 +2627,15 @@
         infoOutput.scrollLeft = infoOutput.scrollWidth;
       }
 
+      if (!qrIn && await sim.GetQRCode()) {
+        exportQrBtn2.style.display = '';
+        exportQrBtn2.classList.add('blink');
+        qrIn = true;
+      } else if (qrIn && !(await sim.GetQRCode())) {
+        exportQrBtn2.style.display = 'none';
+        exportQrBtn2.classList.remove('blink');
+        qrIn = false;
+      }
     } else {
       ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     }
@@ -2766,12 +2785,12 @@
     const _bgSetup = emuSetting.getSettingValue('screenshotBackground')
     let BG_COLOR;
     if (isScreenOnly) {
-      if (!_bgSetup || _bgSetup === 'depends-on-model') {
-        BG_COLOR = model.slice(0, 2) === 'CY' ? "#d6e3e3" : "#d6e3d6"
+      if (_bgSetup && _bgSetup.startsWith('#')) {
+        BG_COLOR = _bgSetup
       } else if (_bgSetup === 'custom') {
         BG_COLOR = emuSetting.getSettingValue('screenshotCustomBackgroundColor')
       } else {
-        BG_COLOR = '#fff'
+        BG_COLOR = '#d6e3d6'
       }
     } else {
       BG_COLOR = 'rgba(0, 0, 0, 0)'
@@ -3156,36 +3175,17 @@
 
   const exportQr = async () => {
     let qr = await sim.GetQRCode();
-    let k = false;
-    if (!qr) {
-      k = true;
-      await pressKey('[SHIFT]');
-      await pressKey('[SECONDE]');
-      await pressKey(modelType === 'CY' ? '[OPTN]' : '[x]');
-      const d = new Date().getTime();
-      while (new Date().getTime() - d < 600) {
-        await _sleep(150);
-        qr = await sim.GetQRCode();
-        if (qr) {
-          break;
-        }
-      }
-      if (!qr) {
-        alert(QRPopUpNoQRC.innerText);
-        return;
-      }
-    }
     let t = '';
-    if (navigator.clipboard !== undefined) {
+    try {
       await navigator.clipboard.writeText(qr);
       t = QRPopUpCopiedTC.innerText;
+    } catch (e) {
     }
     t += QRPopUpConfirmTOINT.innerText;
     prompt(t, qr) ? window.open(qr) : null;
-    k ? await pressKey('[AC]') : null;
   }
 
-  exportQrBtn.onclick = exportQr;
+  exportQrBtn2.onclick = exportQr;
 
   const readData = async (start, len, valOut) => {
     return await sim._ReadDataMemory(start, len, Comlink.proxy(valOut));
@@ -3715,12 +3715,6 @@
   menuAutoKeyBtn.onclick = () => {
     toggleMenu();
     autoKeyBtn.click();
-  }
-
-  menuExportQrBtn.onclick = async () => {
-    toggleMenu();
-    await _sleep(200);
-    exportQrBtn.click();
   }
 
   menuHexEditorBtn.onclick = async () => {

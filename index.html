@@ -3222,7 +3222,7 @@
       return;
     }
 
-    hexEditorWindow = window.open('hex-editor.html', 'Hex Editor', 'width=1000,height=850,left=500');
+    hexEditorWindow = window.open('hex-editor.html', `${new Date().getTime()} Hex Editor`, 'width=1000,height=850,left=500');
   }
 
   hexEditorBtn.onclick = () => {

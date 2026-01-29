@@ -32,7 +32,7 @@ Run the emulator, and then switch to **Add Custom Model** panel to import a sing
 
    `keylog.json` file: the keylog file of the calculator, which is used to map the key codes to the key names.
 
-If everything imported correctly, the model will be run and displayed in the model list inside the emulator.
+If everything imported correctly, the model will be run and displayed in the model list inside the emulator. The data is store in your local browser (Inspect Element -> Application -> IndexedDB -> localforage -> keyvaluepairs)
 
 ## Import Multiple Models
 
